@@ -14,4 +14,5 @@
 # include <arpa/inet.h>
 # include <cstdio>
 # include "Client.hpp"
+# include "Channel.hpp"
 #endif

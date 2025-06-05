@@ -10,6 +10,7 @@ class Server
 		std::string				_password;
 		std::string				_host;
 		std::map<int, Client>	_clients;
+		std::map<std::string, Channel> _channels;
 		fd_set					_readFds;
 		int						_maxFd;
 		Server();

@@ -47,7 +47,6 @@ const std::map<int, Client>& Server::getClients() const
 bool	Server::start()
 {
 	std::cout << "Server is starting..." << std::endl;
-	setupSocket();
 	run();
 	return true;
 }
@@ -56,7 +55,6 @@ void	Server::run()
 	while (true)
 	{
 		updateFdSet();
-		
 		int activity = select(_maxFd + 1, &_readFds, NULL, NULL, NULL);
 		if (activity < 0)
 		{
@@ -129,7 +127,6 @@ void	Server::setupSocket()
 	std::memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = INADDR_ANY;
-	std::cout << _port << std::endl;
 	addr.sin_port = htons(_port);
 
 	if ( bind(_serverFd, (struct sockaddr *)&addr, sizeof(addr)) < 0)
@@ -186,6 +183,8 @@ void	Server::processClientData(Client &client)
 				parseCommand(client, line);
 		}
 }
+
+// a modifier avec pointeur sur fonction pour chaue commande
 void Server::parseCommand(Client &client, const std::string &msg)
 {
 	std::istringstream	iss(msg);
@@ -211,7 +210,101 @@ void Server::parseCommand(Client &client, const std::string &msg)
 			}
 		}
 		client.setNickname(nickname);
-		std::string ok = ":server 001 " + nickname + " :Welcome to the IRC server\r\n";
+		std::string ok = ":server FIRC " + nickname + " :Welcome to the IRC server\r\n";
 		send(client.getSocketFd(), ok.c_str(), ok.size(), 0);
+	}
+	else if (command == "JOIN")
+	{
+		std::string channelName;
+		iss >> channelName;
+
+		if(channelName.empty())
+		{
+			std::string err = "461 JOIN :Not enough parameters\r\n";
+			send(client.getSocketFd(), err.c_str(), err.size(), 0);
+			return;
+		}
+		if (channelName[0] != '#')
+			channelName = '#' + channelName;
+		
+		if (_channels.find(channelName) == _channels.end())
+			_channels[channelName] = Channel(channelName);
+		
+		_channels[channelName].addClient(&client);
+
+		std::string joinMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getIp() + " JOIN " + channelName + "\r\n";
+
+		_channels[channelName].broadcast(joinMsg, -1);
+
+		std::string namesList;
+		std::map<int, Client*> members =_channels[channelName].getClients();
+		for (std::map<int, Client*>::iterator it = members.begin(); it != members.end(); ++it)
+		{
+			if (!it->second->getNickname().empty())
+			{
+				namesList += it->second->getNickname() + " ";
+			}
+		}
+		if (!namesList.empty() && namesList[namesList.size() - 1] == ' ')
+			namesList.erase(namesList.size() - 1);
+		std::string rplNames = ":server 353 " + client.getNickname() + " = " + channelName + " :" + namesList + "\r\n";
+		std:: string rplEndNames = ":server 366 " + client.getNickname() + " " + channelName + " :End of /NAMES list\r\n";
+		send(client.getSocketFd(), rplNames.c_str(), rplNames.size(), 0);
+		send(client.getSocketFd(), rplEndNames.c_str(), rplEndNames.size(), 0);
+	}
+	else if (command == "PRIVMSG")
+	{
+		std::string target;
+		std::string message;
+		iss >> target;
+		std::getline (iss, message);
+		if (message.size() > 0 && (message[0] == ' ' || message[0] == ':'))
+			message = message.substr(1);
+		
+		if (target.empty() || message.empty())
+		{
+			std::string err = "461 PRIVMSG :Not enough parameters\r\n";
+			send(client.getSocketFd(), err.c_str(), err.size(), 0);
+			return;
+		}
+
+		if (target[0] == '#')
+		{
+			std::map<std::string, Channel>::iterator chanIt = _channels.find(target);
+			if (chanIt == _channels.end())
+			{
+				std::string err = "403 " + target + " :No such channel\r\n";
+				send(client.getSocketFd(), err.c_str(), err.size(), 0);
+				return;
+			}
+			Channel& channel = chanIt->second;
+			if (!channel.hasClient(client.getSocketFd()))
+			{
+				std::string err = "442 " + target + " :You're not on that channel\r\n";
+				send(client.getSocketFd(), err.c_str(), err.size(), 0);
+				return;
+			}
+			std::string fullMessage = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getIp() + " PRIVMSG " + target + " :" + message + "\r\n";
+			channel.broadcast(fullMessage, client.getSocketFd());
+		}
+		else
+		{
+			bool found = false;
+			for(std::map<int, Client>::iterator it = _clients.begin();it != _clients.end(); ++it)
+			{
+				if (it->second.getNickname() == target)
+				{
+					found = true;
+					std::string fullMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getIp() + " PRIVMSG " + target + " :" + message + "\r\n";
+					send(it->second.getSocketFd(), fullMsg.c_str(), fullMsg.size(), 0);
+					break;
+				}
+			}
+			if(!found)
+			{
+				std::string err = "401 " + target + " :No such nick\r\n";
+				send(client.getSocketFd(), err.c_str(), err.size(), 0);
+			}
+		}
 	}
 }
