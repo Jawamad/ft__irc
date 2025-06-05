@@ -8,7 +8,8 @@ class Client
 		int			_socketFd;
 		std::string	_nickname;
 		std::string	_username;
-		bool 		_loggedIn;
+		bool		_loggedIn;
+		bool		_hasPassedPassword;
 		std::string _ip;
 		std::string	_buffer;
 	public:
@@ -25,10 +26,12 @@ class Client
 		const	std::string &getUsername() const;
 		const	std::string &getBuffer() const;
 		bool	isLoggedIn() const;
+		bool	HaspassedPassword() const;
 
 		// Setters
 		void setNickname(const std::string &nickname);
 		void setUsername(const std::string &username);
+		void setHaspassedPassword(bool value);
 		void setLoggedIn(bool loggedIn);
 		void appendToBuffer(const std::string &data);
 		void clearBuffer();

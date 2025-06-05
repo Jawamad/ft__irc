@@ -25,6 +25,7 @@ class Server
 		const	std::string &getPassword() const;
 		const	std::map<int, Client> &getClients() const;
 		int		getPort();
+		void	setPassword(const std::string &pass);
 
 		//server setup
 		bool	start();

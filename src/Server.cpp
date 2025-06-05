@@ -42,7 +42,14 @@ const std::map<int, Client>& Server::getClients() const
 {
 	return _clients;
 }
-
+int		Server::getPort()
+{
+	return _port;
+}
+void	Server::setPassword(const std::string &pass)
+{
+	_password = pass;
+}
 //server setup
 bool	Server::start()
 {
@@ -306,5 +313,89 @@ void Server::parseCommand(Client &client, const std::string &msg)
 				send(client.getSocketFd(), err.c_str(), err.size(), 0);
 			}
 		}
+	}
+	else if (command == "PART")
+	{
+		std::string channelName;
+		iss >> channelName;
+
+		if(channelName.empty())
+		{
+			std::string err = "461 PART :Not enough parameters\r\n";
+			send(client.getSocketFd(), err.c_str(), err.size(), 0);
+			return;
+		}
+		if (_channels.find(channelName) == _channels.end())
+		{
+			std::string err = "403 " + channelName + " :No such channel\r\n";
+			send(client.getSocketFd(), err.c_str(), err.size(), 0);
+			return;
+		}
+
+		Channel& channel = _channels[channelName];
+
+		if (!channel.hasClient(client.getSocketFd()))
+		{
+			std::string err = "442 " + channelName + " :You're not on that channel\r\n";
+			send(client.getSocketFd(), err.c_str(), err.size(), 0);
+			return;
+		}
+		std::string partMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getIp() + " PART " + channelName + "\r\n";
+
+		channel.broadcast(partMsg, -1);
+
+		channel.removeClient(client.getSocketFd());
+		if (channel.getClients().empty())
+			_channels.erase(channelName);
+	}
+	else if (command == "QUIT")
+	{
+		std::string quitMessage;
+		std::getline(iss, quitMessage);
+		if (!quitMessage.empty() && (quitMessage[0] == ' ' || quitMessage[0] == ':'))
+			quitMessage = quitMessage.substr(1);
+		if (quitMessage.empty())
+			quitMessage = "Client quit";
+		std::string msg = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getIp() + " QUIT :" + quitMessage + "\r\n";
+		for (std::map<std::string, Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+		{
+			Channel& chan = it->second;
+			if (chan.hasClient(client.getSocketFd()))
+			{
+				chan.broadcast(msg, client.getSocketFd());
+				chan.removeClient(client.getSocketFd());
+
+				if (chan.getClients().empty())
+					_channels.erase(it);
+			}
+		}
+		close(client.getSocketFd());
+		_clients.erase(client.getSocketFd());
+	}
+	else if (command == "PASS")
+	{
+		std::string providedPass;
+		iss >> providedPass;
+		if (client.HaspassedPassword())
+		{
+			std::string err = "462 :You may not reregister\r\n";
+			send(client.getSocketFd(), err.c_str(), err.size(), 0);
+			return;
+		}
+		if (providedPass.empty())
+		{
+			std::string err = "461 PASS :Not enough parameters\r\n";
+			send(client.getSocketFd(), err.c_str(), err.size(), 0);
+			return;
+		}
+		if (providedPass != _password)
+		{
+			std::string err = "464 PASS :Password incorrect\r\n";
+			send(client.getSocketFd(), err.c_str(), err.size(), 0);
+			close(client.getSocketFd());
+			_clients.erase(client.getSocketFd());
+			return;
+		}
+		client.setHaspassedPassword(true);
 	}
 }

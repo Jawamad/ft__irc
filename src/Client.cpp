@@ -98,3 +98,13 @@ std::string Client::receiveMessage()
 	return msg;
 }
 
+bool	Client::HaspassedPassword() const
+{
+	return _hasPassedPassword;
+}
+
+void Client::setHaspassedPassword(bool value)
+{
+	_hasPassedPassword = value;
+}
+
