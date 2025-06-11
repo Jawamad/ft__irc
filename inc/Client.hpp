@@ -10,6 +10,8 @@ class Client
 		std::string	_username;
 		bool		_loggedIn;
 		bool		_hasPassedPassword;
+		bool		_hasUser;
+		bool		_hasNick;
 		std::string _ip;
 		std::string	_buffer;
 	public:
@@ -26,7 +28,9 @@ class Client
 		const	std::string &getUsername() const;
 		const	std::string &getBuffer() const;
 		bool	isLoggedIn() const;
-		bool	HaspassedPassword() const;
+		bool	hasPassedPassword() const;
+		bool	hasUser() const;
+		bool	hasNick() const;
 
 		// Setters
 		void setNickname(const std::string &nickname);
@@ -35,7 +39,9 @@ class Client
 		void setLoggedIn(bool loggedIn);
 		void appendToBuffer(const std::string &data);
 		void clearBuffer();
-
+		void setHasUser(bool value);
+		void setHasNick(bool value)
+;
 		// network
 		std::string receiveMessage();
 };

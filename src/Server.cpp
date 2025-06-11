@@ -72,6 +72,7 @@ void	Server::run()
 		if (FD_ISSET(_serverFd, &_readFds))
 			acceptNewClient();
 		
+		//a verifier
 		std::map<int, Client>::iterator it = _clients.begin();
 		while (it != _clients.end())
 		{
@@ -123,6 +124,7 @@ void	Server::setupSocket()
 		exit(1); 
 	}
 
+	// a revoir
 	int opt = 1;
 	if (setsockopt(_serverFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
 	{
@@ -176,27 +178,39 @@ void	Server::processClientData(Client &client)
 		return;
 	}
 	
-	
-		std::cout << "Message receive from " << client.getIp() << ": " << msg;
-		//parsing command
+	std::cout << "Message receive from " << client.getIp() << ": " << msg;
+	//parsing command
 
-		std::istringstream ss(msg);
-		std::string line;
-		while(std::getline(ss, line))
-		{
-			if (!line.empty() && line[line.size() - 1] == '\r')
-				line.erase(line.size() - 1, 1);
-			if (!line.empty())
-				parseCommand(client, line);
-		}
+	std::istringstream ss(msg);
+	std::string line;
+	while(std::getline(ss, line))
+	{
+		if (!line.empty() && line[line.size() - 1] == '\r')
+			line.erase(line.size() - 1, 1);
+		if (!line.empty())
+			parseCommand(client, line);
+	}
 }
 
-// a modifier avec pointeur sur fonction pour chaue commande
+// a modifier avec pointeur sur fonction pour chaque commande
 void Server::parseCommand(Client &client, const std::string &msg)
 {
 	std::istringstream	iss(msg);
 	std::string command;
 	iss >> command;
+
+	if (!_password.empty() && !client.hasPassedPassword() && command != "PASS" && command != "QUIT")
+	{
+		std::string err = "464 :Password required\r\n";
+		send(client.getSocketFd(), err.c_str(), err.size(), 0);
+		return ;
+	}
+	if (!client.isLoggedIn() && command != "NICK" && command != "USER" && command != "PASS" && command != "QUIT")
+	{
+		std::string err = "451 :You have not registered\r\n";
+		send(client.getSocketFd(), err.c_str(), err.size(), 0);
+		return ;
+	}
 	if (command == "NICK")
 	{
 		std::string nickname;
@@ -217,8 +231,14 @@ void Server::parseCommand(Client &client, const std::string &msg)
 			}
 		}
 		client.setNickname(nickname);
-		std::string ok = ":server FIRC " + nickname + " :Welcome to the IRC server\r\n";
-		send(client.getSocketFd(), ok.c_str(), ok.size(), 0);
+		client.setHasNick(true);
+
+		if (client.hasUser() && client.hasNick())
+		{
+			client.setLoggedIn(true);
+			std::string welcome = ":server 001 " + client.getNickname() + " :Welcome to the IRC server \r\n";
+			send(client.getSocketFd(), welcome.c_str(), welcome.size(), 0);
+		}
 	}
 	else if (command == "JOIN")
 	{
@@ -376,7 +396,7 @@ void Server::parseCommand(Client &client, const std::string &msg)
 	{
 		std::string providedPass;
 		iss >> providedPass;
-		if (client.HaspassedPassword())
+		if (client.hasPassedPassword())
 		{
 			std::string err = "462 :You may not reregister\r\n";
 			send(client.getSocketFd(), err.c_str(), err.size(), 0);
@@ -397,5 +417,35 @@ void Server::parseCommand(Client &client, const std::string &msg)
 			return;
 		}
 		client.setHaspassedPassword(true);
+	}
+	else if (command == "USER")
+	{
+		std::string username, unused1, unused2, realname;
+		//check if unused has to be use or it s optional
+		iss >> username >> unused1 >> unused2;
+		std::getline(iss, realname);
+		if (username.empty() || realname.empty())
+		{
+			std::string err = "461 USER :Not enough parameters\r\n";
+			send(client.getSocketFd(), err.c_str(), err.size(), 0);
+			return;
+		}
+
+		if (client.hasUser())
+		{
+			std::string err = "462 :You may not reregister\r\n";
+			send(client.getSocketFd(), err.c_str(), err.size(), 0);
+			return;
+		}
+
+		client.setUsername(username);
+		client.setHasUser(true);
+
+		if (client.hasUser() && client.hasNick())
+		{
+			client.setLoggedIn(true);
+			std::string welcome = ":server 001 " + client.getNickname() + " :welcome to the IRC server \r\n";
+			send(client.getSocketFd(), welcome.c_str(), welcome.size(), 0);
+		}
 	}
 }
