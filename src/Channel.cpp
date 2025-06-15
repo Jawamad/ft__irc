@@ -34,6 +34,7 @@ void	Channel::addClient(Client* client)
 void	Channel::removeClient(int clientFd)
 {
 	_clients.erase(clientFd);
+	_operators.erase(clientFd);
 }
 bool	Channel::hasClient(int clientFd) const
 {
@@ -51,3 +52,26 @@ size_t	Channel::getClientCount() const
 {
 	return _clients.size();
 }
+
+bool Channel::isOperator(int clientFd) const { 
+	int last = *(_operators.rbegin());
+	std::cout << "Last operator: " << last << std::endl;
+	return _operators.find(clientFd) != _operators.end();
+}
+
+void Channel::addOperator(int clientFd) {
+	if (hasClient(clientFd))
+	{
+		_operators.insert(clientFd);
+		int last = *(_operators.rbegin()); // reverse begin -> dernier élément
+	    std::cout << "Last operator: " << last << std::endl;
+	}
+}
+
+
+
+void Channel::removeOperator(int clientFd) {
+	_operators.erase(clientFd);
+}
+
+

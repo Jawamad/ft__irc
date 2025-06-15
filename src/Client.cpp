@@ -70,6 +70,9 @@ void Client::setLoggedIn(bool loggedIn)
 {
 	_loggedIn = loggedIn;
 }
+
+
+
 void Client::appendToBuffer(const std::string &data)
 {
 	_buffer += data;

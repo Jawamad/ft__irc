@@ -30,6 +30,15 @@ Server& Server::operator=(const Server &obj)
 }
 
 // Getters
+const Channel* Server::findChannel(const std::string& name) const 
+{
+	std::map<std::string, Channel>::const_iterator it = _channels.find(name);
+	if (it != _channels.end()) {
+		return &(it->second);
+	}
+	return NULL;
+}
+
 int	Server::getServerFd() const
 {
 	return _serverFd;
@@ -240,45 +249,7 @@ void Server::parseCommand(Client &client, const std::string &msg)
 			send(client.getSocketFd(), welcome.c_str(), welcome.size(), 0);
 		}
 	}
-	else if (command == "JOIN")
-	{
-		std::string channelName;
-		iss >> channelName;
-
-		if(channelName.empty())
-		{
-			std::string err = "461 JOIN :Not enough parameters\r\n";
-			send(client.getSocketFd(), err.c_str(), err.size(), 0);
-			return;
-		}
-		if (channelName[0] != '#')
-			channelName = '#' + channelName;
-		
-		if (_channels.find(channelName) == _channels.end())
-			_channels[channelName] = Channel(channelName);
-		
-		_channels[channelName].addClient(&client);
-
-		std::string joinMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getIp() + " JOIN " + channelName + "\r\n";
-
-		_channels[channelName].broadcast(joinMsg, -1);
-
-		std::string namesList;
-		std::map<int, Client*> members =_channels[channelName].getClients();
-		for (std::map<int, Client*>::iterator it = members.begin(); it != members.end(); ++it)
-		{
-			if (!it->second->getNickname().empty())
-			{
-				namesList += it->second->getNickname() + " ";
-			}
-		}
-		if (!namesList.empty() && namesList[namesList.size() - 1] == ' ')
-			namesList.erase(namesList.size() - 1);
-		std::string rplNames = ":server 353 " + client.getNickname() + " = " + channelName + " :" + namesList + "\r\n";
-		std:: string rplEndNames = ":server 366 " + client.getNickname() + " " + channelName + " :End of /NAMES list\r\n";
-		send(client.getSocketFd(), rplNames.c_str(), rplNames.size(), 0);
-		send(client.getSocketFd(), rplEndNames.c_str(), rplEndNames.size(), 0);
-	}
+	
 	else if (command == "PRIVMSG")
 	{
 		std::string target;
@@ -446,6 +417,85 @@ void Server::parseCommand(Client &client, const std::string &msg)
 			client.setLoggedIn(true);
 			std::string welcome = ":server 001 " + client.getNickname() + " :welcome to the IRC server \r\n";
 			send(client.getSocketFd(), welcome.c_str(), welcome.size(), 0);
+		}
+	}
+	else if (command == "JOIN")
+	{
+		std::string channelName;
+		iss >> channelName;
+
+		if(channelName.empty())
+		{
+			std::string err = "461 JOIN :Not enough parameters\r\n";
+			send(client.getSocketFd(), err.c_str(), err.size(), 0);
+			return;
+		}
+		if (channelName[0] != '#')
+			channelName = '#' + channelName;
+		
+		if (_channels.find(channelName) == _channels.end())
+		{
+			_channels[channelName] = Channel(channelName);
+			std::cout << "New channel " << channelName << " created by " << client.getNickname() << std::endl;
+
+			_channels[channelName].addClient(&client);                    // On l'ajoute au channel
+			_channels[channelName].addOperator(client.getSocketFd());     // Le client devient opérateur	
+		}
+		
+		_channels[channelName].addClient(&client);
+
+		std::string joinMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.getIp() + " JOIN " + channelName + "\r\n";
+
+		_channels[channelName].broadcast(joinMsg, -1);
+
+		std::string namesList;
+		std::map<int, Client*> members =_channels[channelName].getClients();
+		for (std::map<int, Client*>::iterator it = members.begin(); it != members.end(); ++it)
+		{
+			if (!it->second->getNickname().empty())
+			{
+				namesList += it->second->getNickname() + " ";
+			}
+		}
+		if (!namesList.empty() && namesList[namesList.size() - 1] == ' ')
+			namesList.erase(namesList.size() - 1);
+		std::string rplNames = ":server 353 " + client.getNickname() + " = " + channelName + " :" + namesList + "\r\n";
+		std:: string rplEndNames = ":server 366 " + client.getNickname() + " " + channelName + " :End of /NAMES list\r\n";
+		send(client.getSocketFd(), rplNames.c_str(), rplNames.size(), 0);
+		send(client.getSocketFd(), rplEndNames.c_str(), rplEndNames.size(), 0);
+	}
+
+	/// operator
+	else if (command == "KICK")
+	{
+		std::string channelName;
+		std::string clientToKick;
+		iss >> channelName >> clientToKick;
+
+		// Ajoute le # si absent
+		if (channelName[0] != '#')
+			channelName = '#' + channelName;
+
+		std::cout << "INPUT " << channelName << " ! " << std::endl;
+
+		const Channel* channel = findChannel(channelName); 
+
+		if (channel)
+		{
+			std::cout << "FIND " << channelName << " ! " << std::endl;
+			std::cout << "operator :::::::::::" << channel->isOperator(client.getSocketFd()) << std::endl;
+			if (channel->isOperator(client.getSocketFd()))
+			{
+				std::cout << client.getNickname() << " can KICK " << clientToKick << " ! " << std::endl;
+			}
+			else
+			{
+				std::cout << "Permission denied: " << client.getNickname() << " is not operator." << std::endl;
+			}
+		}
+		else
+		{
+			std::cout << "Channel " << channelName << " not found." << std::endl;
 		}
 	}
 }

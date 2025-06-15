@@ -13,6 +13,7 @@ class Server
 		std::map<std::string, Channel> _channels;
 		fd_set					_readFds;
 		int						_maxFd;
+		
 		Server();
 	public:
 		Server(int port, const std::string &password);
@@ -26,6 +27,7 @@ class Server
 		const	std::map<int, Client> &getClients() const;
 		int		getPort();
 		void	setPassword(const std::string &pass);
+		const Channel* findChannel(const std::string& name) const; 
 
 		//server setup
 		bool	start();

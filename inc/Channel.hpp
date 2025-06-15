@@ -2,6 +2,8 @@
 # define CHANNEL_HPP
 
 #include "ircserv.hpp"
+#include <set>
+
 class Client;
 
 class Channel
@@ -9,6 +11,7 @@ class Channel
 	private:
 		std::string _name;
 		std::map<int, Client*> _clients;
+		std::set<int> _operators;
 	public:
 		Channel();
 		Channel(const std::string &name);
@@ -24,6 +27,10 @@ class Channel
 		bool	hasClient(int clientFd) const;
 		void	broadcast( const std::string &message, int senderFd);
 		size_t	getClientCount() const;
+
+		bool	isOperator(int clientFd) const;
+		void	addOperator(int clientFd);
+		void	removeOperator(int clientFd);
 };
 
 #endif
