@@ -3,6 +3,7 @@
 
 #include "JoinCommand.hpp"
 #include "NickCommand.hpp"
+#include "KickCommand.hpp"
 #include "PartCommand.hpp"
 #include "PassCommand.hpp"
 #include "PrivmsgCommand.hpp"

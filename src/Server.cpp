@@ -4,6 +4,7 @@
 Server::Server(int port, const std::string &password): _serverFd(-1), _port(port), _password(password), _host("localhost"), _maxFd(0)
 {
 	_commands["NICK"] = new NickCommand();
+	_commands["KICK"] = new KickCommand();
 	_commands["JOIN"] = new JoinCommand();
 	_commands["PART"] = new PartCommand();
 	_commands["PASS"] = new PassCommand();
@@ -43,16 +44,6 @@ Server& Server::operator=(const Server &obj)
 	}
 	return *this;
 }
-
-// Getters
-Channel* Server::findChannel(const std::string& name) {
-	std::map<std::string, Channel>::iterator it = _channels.find(name);
-	if (it != _channels.end()) {
-		return &(it->second);
-	}
-	return NULL;
-}
-
 
 int	Server::getServerFd() const
 {
@@ -134,7 +125,10 @@ void	Server::run()
 
 		if (FD_ISSET(_serverFd, &_readFds))
 			acceptNewClient();
-		
+		// for(std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+		// {
+		// 	std::cout << it->second->getUsername() << std::endl;
+		// }
 		//a verifier
 		std::map<int, Client*>::iterator it = _clients.begin();
 		while (it != _clients.end())
@@ -256,10 +250,11 @@ void	Server::processClientData(Client* client)
 
 Client* Server::findClientByNickname(const std::string& nickname) 
 {
-    for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-        Client& client = it->second;
-        if (client.getNickname() == nickname) {
-            return &client;  // Retourne un pointeur sur l'objet Client dans la map
+    for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+        Client* client = it->second;
+		std::cout << client->getNickname();
+        if (client->getNickname() == nickname) {
+            return client;  // Retourne un pointeur sur l'objet Client dans la map
         }
     }
     return NULL;

@@ -17,10 +17,16 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 	
 	std::map<std::string, Channel*>& channels = server.getChannels();
 	if (channels.find(channelName) == channels.end())
+	{
 		channels[channelName] = new Channel(channelName);
-
-	channels[channelName]->addClient(client);
-
+		channels[channelName]->addClient(client);
+		channels[channelName]->addOperator(client->getSocketFd());
+		std::cout << "New channel " << channelName << " created by " << client->getNickname() << std::endl;
+	}
+	else
+	{
+		channels[channelName]->addClient(client);
+	}
 	std::string joinMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " JOIN " + channelName + "\r\n";
 
 	server.getChan(channelName)->broadcast(joinMsg, -1);

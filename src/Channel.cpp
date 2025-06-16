@@ -56,9 +56,12 @@ size_t	Channel::getClientCount() const
 }
 
 bool Channel::isOperator(int clientFd) const { 
-	int last = *(_operators.rbegin());
-	std::cout << "Last operator: " << last << std::endl;
-	return _operators.find(clientFd) != _operators.end();
+	for(std::set<int>::iterator it = _operators.begin(); it != _operators.end(); ++it)
+	{
+		if (clientFd == *it)
+			return true;
+	}
+	return false;
 }
 
 void Channel::addOperator(int clientFd) {
