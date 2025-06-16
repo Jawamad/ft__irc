@@ -27,7 +27,10 @@ class Server
 		const	std::map<int, Client> &getClients() const;
 		int		getPort();
 		void	setPassword(const std::string &pass);
-		const Channel* findChannel(const std::string& name) const; 
+	
+		Channel* findChannel(const std::string& name);
+
+		// const Channel* findChannel(const std::string& name) const; 
 
 		//server setup
 		bool	start();
@@ -35,7 +38,10 @@ class Server
 		void	acceptNewClient();
 		void	handleClientMessage(int clientFd);
 		void	removeClient(int clientFd);
-	
+
+		// operator
+		Client* findClientByNickname(const std::string& nickname);
+
 	private:
 		void	setupSocket();
 		void	updateFdSet();

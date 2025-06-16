@@ -30,14 +30,14 @@ Server& Server::operator=(const Server &obj)
 }
 
 // Getters
-const Channel* Server::findChannel(const std::string& name) const 
-{
-	std::map<std::string, Channel>::const_iterator it = _channels.find(name);
+Channel* Server::findChannel(const std::string& name) {
+	std::map<std::string, Channel>::iterator it = _channels.find(name);
 	if (it != _channels.end()) {
 		return &(it->second);
 	}
 	return NULL;
 }
+
 
 int	Server::getServerFd() const
 {
@@ -200,6 +200,19 @@ void	Server::processClientData(Client &client)
 			parseCommand(client, line);
 	}
 }
+
+
+Client* Server::findClientByNickname(const std::string& nickname) 
+{
+    for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+        Client& client = it->second;
+        if (client.getNickname() == nickname) {
+            return &client;  // Retourne un pointeur sur l'objet Client dans la map
+        }
+    }
+    return NULL;
+}
+
 
 // a modifier avec pointeur sur fonction pour chaque commande
 void Server::parseCommand(Client &client, const std::string &msg)
@@ -464,7 +477,6 @@ void Server::parseCommand(Client &client, const std::string &msg)
 		send(client.getSocketFd(), rplNames.c_str(), rplNames.size(), 0);
 		send(client.getSocketFd(), rplEndNames.c_str(), rplEndNames.size(), 0);
 	}
-
 	/// operator
 	else if (command == "KICK")
 	{
@@ -472,20 +484,36 @@ void Server::parseCommand(Client &client, const std::string &msg)
 		std::string clientToKick;
 		iss >> channelName >> clientToKick;
 
+		if(channelName.empty())
+		{
+			std::string err = "461 KICK :Not enough parameters\r\n";
+			send(client.getSocketFd(), err.c_str(), err.size(), 0);
+			return;
+		}
+
 		// Ajoute le # si absent
 		if (channelName[0] != '#')
 			channelName = '#' + channelName;
 
 		std::cout << "INPUT " << channelName << " ! " << std::endl;
 
-		const Channel* channel = findChannel(channelName); 
-
+		Channel* channel = findChannel(channelName); 
+		Client* clientToKickPtr = findClientByNickname(clientToKick);
+		if (!clientToKickPtr)
+		{
+			std::cout << "Client " << clientToKick << " not found." << std::endl;
+			return;
+		}
+		
 		if (channel)
 		{
 			std::cout << "FIND " << channelName << " ! " << std::endl;
 			std::cout << "operator :::::::::::" << channel->isOperator(client.getSocketFd()) << std::endl;
+			
 			if (channel->isOperator(client.getSocketFd()))
-			{
+			{   
+				channel->clientGetsKickByOperator(client.getNickname(), *clientToKickPtr);
+				std::cout << clientToKickPtr->getNickname() << " is the client to kick" << std::endl;
 				std::cout << client.getNickname() << " can KICK " << clientToKick << " ! " << std::endl;
 			}
 			else

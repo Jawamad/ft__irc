@@ -40,10 +40,11 @@ class Client
 		void appendToBuffer(const std::string &data);
 		void clearBuffer();
 		void setHasUser(bool value);
-		void setHasNick(bool value)
-;
+		void setHasNick(bool value);
+	
 		// network
 		std::string receiveMessage();
+
 };
 
 #endif

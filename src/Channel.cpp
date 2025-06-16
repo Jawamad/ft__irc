@@ -31,11 +31,13 @@ void	Channel::addClient(Client* client)
 	if (client)
 		_clients[client->getSocketFd()] = client;
 }
+
 void	Channel::removeClient(int clientFd)
 {
 	_clients.erase(clientFd);
 	_operators.erase(clientFd);
 }
+
 bool	Channel::hasClient(int clientFd) const
 {
 	return _clients.find(clientFd) != _clients.end();
@@ -69,9 +71,13 @@ void Channel::addOperator(int clientFd) {
 }
 
 
-
 void Channel::removeOperator(int clientFd) {
 	_operators.erase(clientFd);
 }
 
 
+void Channel::clientGetsKickByOperator(const std::string &nickName, Client &client) 
+{
+	std::cout << "operator " << nickName << " has kick the user " << client.getNickname() << std::endl;
+	removeClient(client.getSocketFd());
+}

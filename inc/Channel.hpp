@@ -31,6 +31,10 @@ class Channel
 		bool	isOperator(int clientFd) const;
 		void	addOperator(int clientFd);
 		void	removeOperator(int clientFd);
+
+		Client* findClientByNickname(const std::string& nickname);
+		void clientGetsKickByOperator(const std::string &nickName, Client &client);
+	
 };
 
 #endif
