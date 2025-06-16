@@ -1,11 +1,13 @@
 #include "../inc/Client.hpp"
 
-Client::Client(): _loggedIn(false)
+Client::Client(): _loggedIn(false), _hasPassedPassword(false), _hasUser(false), _hasNick(false)
 {
 
 }
 
-Client::Client(int fd, const std::string username, const std::string &ip): _socketFd(fd), _username(username), _loggedIn(false), _ip(ip)
+Client::Client(int fd, const std::string username, const std::string &ip)
+	: _socketFd(fd), _username(username), _loggedIn(false), _hasPassedPassword(false), _hasUser(false),
+		_hasNick(false), _ip(ip)
 {
 }
 
@@ -15,7 +17,9 @@ Client::Client(const Client& obj)
 }
 
 Client::~Client()
-{}
+{
+	std::cout << "Client destroyed for fd: " << _socketFd << std::endl;
+}
 
 Client& Client::operator=(const Client& obj)
 {

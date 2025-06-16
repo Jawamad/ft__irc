@@ -15,4 +15,5 @@
 # include <cstdio>
 # include "Client.hpp"
 # include "Channel.hpp"
+# include "ICommand.hpp"
 #endif
