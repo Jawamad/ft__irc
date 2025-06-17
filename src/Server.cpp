@@ -3,8 +3,13 @@
 
 Server::Server(int port, const std::string &password): _serverFd(-1), _port(port), _password(password), _host("localhost"), _maxFd(0)
 {
-	_commands["NICK"] = new NickCommand();
+	// operator
 	_commands["KICK"] = new KickCommand();
+	_commands["INVITE"] = new InviteCommand();
+	_commands["TOPIC"] = new TopicCommand();
+	//_commands["MODE"] = new ModeCommand();
+
+	_commands["NICK"] = new NickCommand();
 	_commands["JOIN"] = new JoinCommand();
 	_commands["PART"] = new PartCommand();
 	_commands["PASS"] = new PassCommand();

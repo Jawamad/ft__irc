@@ -21,6 +21,17 @@ const std::string&	Channel::getName() const
 {
 	return _name;
 }
+
+const std::string&	Channel::getTopic() const
+{
+	return _topic;
+}
+
+void  Channel::setTopic(const std::string &topic)
+{
+	this->_topic = topic;
+}
+
 const std::map<int, Client*>&	Channel::getClients()const
 {
 	return _clients;
@@ -83,4 +94,11 @@ void Channel::clientGetsKickByOperator(const std::string &nickName, Client &clie
 {
 	std::cout << "operator " << nickName << " has kick the user " << client.getNickname() << std::endl;
 	removeClient(client.getSocketFd());
+}
+
+
+void Channel::clientGetsInviteByOperator(const std::string &nickName, Client &client) 
+{
+	std::cout << "operator " << nickName << " has invite the user " << client.getNickname() << std::endl;
+	addClient(&client);
 }
