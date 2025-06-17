@@ -7,7 +7,7 @@ Server::Server(int port, const std::string &password): _serverFd(-1), _port(port
 	_commands["KICK"] = new KickCommand();
 	_commands["INVITE"] = new InviteCommand();
 	_commands["TOPIC"] = new TopicCommand();
-	//_commands["MODE"] = new ModeCommand();
+	_commands["MODE"] = new ModeCommand();
 
 	_commands["NICK"] = new NickCommand();
 	_commands["JOIN"] = new JoinCommand();

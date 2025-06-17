@@ -14,11 +14,8 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 		return;
 	}
 
-	// Ajoute le # si absent
 	if (channelName[0] != '#')
 		channelName = '#' + channelName;
-
-	// std::cout << "INPUT " << channelName << " ! " << std::endl;
 
 	Channel* channel = server.getChan(channelName); 
 	Client* clientToKickPtr = server.findClientByNickname(clientToKick);
@@ -30,16 +27,10 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 	}
 	
 	if (channel)
-	{
-		// std::cout << "FIND " << channelName << " ! " << std::endl;
-		//////////
-		// std::cout << "operator :" << channel->isOperator(client->getSocketFd()) << std::endl;
-		
+	{	
 		if (channel->isOperator(client->getSocketFd()))
 		{   
 			channel->clientGetsKickByOperator(client->getNickname(), *clientToKickPtr);
-			//std::cout << clientToKickPtr->getNickname() << " is the client to kick" << std::endl;
-			// std::cout << client->getNickname() << " can KICK " << clientToKick << " ! " << std::endl;
 		}
 		else
 		{

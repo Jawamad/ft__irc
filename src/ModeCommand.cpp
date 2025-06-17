@@ -1,53 +1,41 @@
-// #include "../inc/ModeCommand.hpp"
-// #include "../inc/Server.hpp"
+#include "../inc/ModeCommand.hpp"
+#include "../inc/Server.hpp"
 
-// void ModeCommand::execute(Server &server, Client *client, std::istringstream &args)
-// {
-// // 	std::string channelName;
-// // 	std::string clientToKick;
-// // 	args >> channelName >> clientToKick;
+// MODES
+// — i : Définir/supprimer le canal sur invitation uniquement
+// — t : Définir/supprimer les restrictions de la commande TOPIC pour les opérateurs de canaux
+// — k : Définir/supprimer la clé du canal (mot de passe)
+// — o : Donner/retirer le privilège de l’opérateur de canal
+// — l : Définir/supprimer la limite d’utilisateurs pour le canal
 
-// // 	if(channelName.empty())
-// // 	{
-// // 		std::string err = "461 KICK :Not enough parameters\r\n";
-// // 		send(client->getSocketFd(), err.c_str(), err.size(), 0);
-// // 		return;
-// // 	}
 
-// // 	// Ajoute le # si absent
-// // 	if (channelName[0] != '#')
-// // 		channelName = '#' + channelName;
+void ModeCommand::execute(Server &server, Client *client, std::istringstream &args)
+{
+	std::string channelName;
+	std::string modeletter;
+	args >> channelName >> modeletter;
 
-// // 	// std::cout << "INPUT " << channelName << " ! " << std::endl;
+	if(channelName.empty())
+	{
+		std::string err = "461 MODE :Not enough parameters\r\n";
+		send(client->getSocketFd(), err.c_str(), err.size(), 0);
+		return;
+	}
 
-// // 	Channel* channel = server.getChan(channelName); 
-// // 	Client* clientToKickPtr = server.findClientByNickname(clientToKick);
+	if (channelName[0] != '#')
+		channelName = '#' + channelName;
 
-// // 	if (!clientToKickPtr)
-// // 	{
-// // 		std::cout << "Client " << clientToKick << " not found." << std::endl;
-// // 		return;
-// // 	}
+	Channel* channel = server.getChan(channelName);
+
+	Client* clientToKickPtr = server.findClientByNickname(clientToKick);
+
+	if (modeletter == "+i")
+	{
+		std::cout << "From now on, the channel access is only on invitation" << std::endl;
+	}
+	else if (modeletter == "-i")
+	{
+		std::cout << "From now on, the channel access is open even without invitation" << std::endl;
+	}
 	
-// // 	if (channel)
-// // 	{
-// // 		// std::cout << "FIND " << channelName << " ! " << std::endl;
-// // 		//////////
-// // 		// std::cout << "operator :" << channel->isOperator(client->getSocketFd()) << std::endl;
-		
-// // 		if (channel->isOperator(client->getSocketFd()))
-// // 		{   
-// // 			channel->clientGetsKickByOperator(client->getNickname(), *clientToKickPtr);
-// // 			//std::cout << clientToKickPtr->getNickname() << " is the client to kick" << std::endl;
-// // 			// std::cout << client->getNickname() << " can KICK " << clientToKick << " ! " << std::endl;
-// // 		}
-// // 		else
-// // 		{
-// // 			std::cout << "Permission denied: " << client->getNickname() << " is not operator." << std::endl;
-// // 		}
-// // 	}
-// // 	else
-// // 	{
-// // 		std::cout << "Channel " << channelName << " not found." << std::endl;
-// // 	}
-// }
+}
