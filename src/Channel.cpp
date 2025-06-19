@@ -102,3 +102,9 @@ void Channel::clientGetsInviteByOperator(const std::string &nickName, Client &cl
 	std::cout << "operator " << nickName << " has invite the user " << client.getNickname() << std::endl;
 	addClient(&client);
 }
+
+bool Channel::invitationToAccess(int clientFd) {
+	if (channel.isOperator(clientFd)) {
+		channels[channelName]->addClient(client);
+	}
+}

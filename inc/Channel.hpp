@@ -39,6 +39,9 @@ class Channel
 		Client* findClientByNickname(const std::string& nickname);
 		void clientGetsKickByOperator(const std::string &nickName, Client &client);
 		void clientGetsInviteByOperator(const std::string &nickName, Client &client); 
+
+		// operator MODE
+		bool invitationToAccess(int clientFd);
 	
 };
 
