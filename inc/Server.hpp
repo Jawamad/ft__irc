@@ -24,6 +24,7 @@ class Server
 		// Getters
 		int		getServerFd() const;
 		const	std::string &getPassword() const;
+		std::map<int, Client*> &getClients();
 		const	std::map<int, Client*> &getClients() const;
 		std::map<std::string, Channel*> &getChannels();
 		const	std::map<std::string, Channel*> &getChannels() const;
@@ -34,6 +35,8 @@ class Server
 		void	addChannel(std::string chanName);
 		void	delChannel(std::string chanName);
 		void	delClient(int fd);
+		bool	hasChannel(std::string chanName);
+		Client*	getClientByNick(std::string nickname);
 
 		//server setup
 		bool	start();

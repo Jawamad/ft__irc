@@ -34,7 +34,7 @@ void PrivmsgCommand::execute(Server &server, Client *client, std::istringstream 
 			send(client->getSocketFd(), err.c_str(), err.size(), 0);
 			return;
 		}
-		std::string fullMessage = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " PRIVMSG " + target + " :" + message + "\r\n";
+		std::string fullMessage = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " PRIVMSG " + target + " " + message + "\r\n";
 		channel->broadcast(fullMessage, client->getSocketFd());
 	}
 	else
@@ -46,7 +46,7 @@ void PrivmsgCommand::execute(Server &server, Client *client, std::istringstream 
 			if (it->second->getNickname() == target)
 			{
 				found = true;
-				std::string fullMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " PRIVMSG " + target + " :" + message + "\r\n";
+				std::string fullMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " PRIVMSG " + target + " " + message + "\r\n";
 				send(it->second->getSocketFd(), fullMsg.c_str(), fullMsg.size(), 0);
 				break;
 			}
