@@ -26,7 +26,8 @@ class Client
 		const	std::string &getIp() const;
 		const	std::string &getNickname() const;
 		const	std::string &getUsername() const;
-		const	std::string &getBuffer() const;
+		const std::string &getBuffer() const;
+		std::string &getBuffer();
 		bool	isLoggedIn() const;
 		bool	hasPassedPassword() const;
 		bool	hasUser() const;
@@ -43,7 +44,7 @@ class Client
 		void setHasNick(bool value)
 ;
 		// network
-		std::string receiveMessage();
+		bool receiveMessage();
 };
 
 #endif

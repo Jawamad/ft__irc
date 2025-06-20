@@ -10,6 +10,9 @@ Server::Server(int port, const std::string &password): _serverFd(-1), _port(port
 	_commands["PRIVMSG"] = new PrivmsgCommand();
 	_commands["QUIT"] = new QuitCommand();
 	_commands["USER"] = new UserCommand();
+	_commands["PING"] = new PingCommand();
+	_commands["CAP"] = new CapCommand();
+	_commands["WHO"] = new WhoCommand();
 	setupSocket();
 }
 Server::~Server()
@@ -53,6 +56,10 @@ const std::string& Server::getPassword() const
 {
 	return _password;
 }
+std::map<int, Client*>& Server::getClients()
+{
+	return _clients;
+}
 const std::map<int, Client*>& Server::getClients() const
 {
 	return _clients;
@@ -72,6 +79,15 @@ const	std::map<std::string, Channel*>& Server::getChannels() const
 const	std::map<std::string, ICommand*>& Server::getCommands() const
 {
 	return _commands;
+}
+Client*	Server::getClientByNick(std::string nickname)
+{
+	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+	{
+		if (it->second->getNickname() == nickname)
+			return it->second;
+	}
+	return NULL;
 }
 void	Server::setPassword(const std::string &pass)
 {
@@ -102,6 +118,14 @@ Channel* Server::getChan(std::string chanName)
 	if (it == _channels.end())
 		return NULL;
 	return it->second;
+}
+
+bool	Server::hasChannel(std::string chanName)
+{
+	std::map<std::string, Channel*>::iterator it = _channels.find(chanName);
+	if (it == _channels.end())
+		return false;
+	return true;
 }
 
 //server setup
@@ -155,7 +179,7 @@ void	Server::acceptNewClient()
 
 	std::string ip = inet_ntoa(clientAddr.sin_addr);
 
-	_clients[clientFd] = new Client(clientFd, ip, "guest");
+	_clients[clientFd] = new Client(clientFd, "guest", ip);
 	std::cout << "New client connected : " << ip << " (fd=" << clientFd << ")" << std::endl;
 }
 void	Server::handleClientMessage(int clientFd)
@@ -222,25 +246,28 @@ void	Server::updateFdSet()
 }
 void	Server::processClientData(Client* client)
 {
-	std::string msg = client->receiveMessage();
+	bool ok = client->receiveMessage();
 
-	if (msg.empty())
+	if (!ok)
 	{
 		std::cout << "Connection lost with client (fd=" << client->getSocketFd() << ")" << std::endl;
 		removeClient(client->getSocketFd());
 		return;
 	}
-	
-	std::cout << "Message receive from " << client->getIp() << ": " << msg;
-
-	std::istringstream ss(msg);
-	std::string line;
-	while(std::getline(ss, line))
+	size_t pos;
+	while ((pos = client->getBuffer().find('\n')) != std::string::npos)
 	{
+		std::string line = client->getBuffer().substr(0, pos);
+		client->getBuffer().erase(0, pos + 1);
+
 		if (!line.empty() && line[line.size() - 1] == '\r')
-			line.erase(line.size() - 1, 1);
+			line.erase(line.size() - 1);
+
 		if (!line.empty())
+		{
+			std::cout << "Message receive from " << client->getIp() << "=" << client->getUsername() << "@" << client->getNickname() << ": " << line << std::endl;
 			parseCommand(client, line);
+		}
 	}
 }
 
@@ -250,23 +277,19 @@ void Server::parseCommand(Client* client, const std::string &msg)
 	std::string command;
 	iss >> command;
 
-	if (!_password.empty() && !client->hasPassedPassword() && command != "PASS" && command != "QUIT")
-	{
-		std::string err = "464 :Password required\r\n";
-		send(client->getSocketFd(), err.c_str(), err.size(), 0);
-		return ;
-	}
-	if (!client->isLoggedIn() && command != "NICK" && command != "USER" && command != "PASS" && command != "QUIT")
+	if (!client->isLoggedIn() && command != "NICK" && command != "USER" && command != "PASS" && command != "QUIT" && command != "CAP")
 	{
 		std::string err = "451 :You have not registered\r\n";
 		send(client->getSocketFd(), err.c_str(), err.size(), 0);
 		return ;
 	}
 
-	// a revoir
 	std::map<std::string, ICommand*>::iterator it = _commands.find(command);
 	if (it != _commands.end())
 		it->second->execute(*this, client, iss);
 	else
-		send(client->getSocketFd(), ("421 " + command + " :Unknown command\r\n").c_str(), msg.size(), 0);
+	{
+		std::string err = "421 " + command + " :Unknown command\r\n";
+		send(client->getSocketFd(), err.c_str(), err.size(), 0);
+	}
 }

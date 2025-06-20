@@ -8,5 +8,8 @@
 #include "PrivmsgCommand.hpp"
 #include "QuitCommand.hpp"
 #include "UserCommand.hpp"
+#include "PingCommand.hpp"
+#include "CapCommand.hpp"
+#include "WhoCommand.hpp"
 
 #endif

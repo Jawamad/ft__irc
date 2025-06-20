@@ -5,7 +5,7 @@ void UserCommand::execute(Server &server, Client *client, std::istringstream &ar
 {
 	(void) server;
 	std::string username, unused1, unused2, realname;
-	//check if unused has to be use or it s optional
+	
 	args >> username >> unused1 >> unused2;
 	std::getline(args, realname);
 	if (username.empty() || realname.empty())
@@ -25,7 +25,7 @@ void UserCommand::execute(Server &server, Client *client, std::istringstream &ar
 	client->setUsername(username);
 	client->setHasUser(true);
 
-	if (client->hasUser() && client->hasNick())
+	if (client->hasUser() && client->hasNick() && client->hasPassedPassword())
 	{
 		client->setLoggedIn(true);
 		std::string welcome = ":server 001 " + client->getNickname() + " :welcome to the IRC server \r\n";

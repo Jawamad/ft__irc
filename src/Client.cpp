@@ -52,6 +52,10 @@ const std::string& Client::getUsername() const
 {
 	return _username;
 }
+std::string& Client::getBuffer()
+{
+	return _buffer;
+}
 const std::string& Client::getBuffer() const
 {
 	return _buffer;
@@ -84,22 +88,19 @@ void Client::clearBuffer()
 }
 
 // Network
-std::string Client::receiveMessage()
+bool Client::receiveMessage()
 {
 	char buffer[512];
 	std::memset(buffer, 0, sizeof(buffer));
 	int bytes = recv(_socketFd, buffer, sizeof(buffer) - 1, 0);
 
-	//a voir si on a ds erreurs a gerer ici
 	if (bytes <= 0)
-		return "";
+		return false;
 
 	buffer[bytes] = '\0';
-	std::string msg(buffer);
 
-	_buffer += msg;
-	//sert a debug
-	return msg;
+	_buffer += buffer;
+	return true;
 }
 
 bool	Client::hasPassedPassword() const
