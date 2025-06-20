@@ -26,15 +26,16 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 	if (channelName[0] != '#')
 		channelName = '#' + channelName;
 
-	// Channel* channel = server.getChan(channelName);
+	Channel* channel = server.getChan(channelName);
 
 	if (modeletter == "+i")
 	{
+		channel->setInviteOnly(true);
 		std::cout << "From now on," << channelName << " channel access is only on invitation" << std::endl;
 	}
 	else if (modeletter == "-i")
 	{
+		channel->setInviteOnly(false);
 		std::cout << "From now on," << channelName << " channel access is open even without invitation" << std::endl;
 	}
-	
 }

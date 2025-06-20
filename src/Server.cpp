@@ -259,7 +259,19 @@ Client* Server::findClientByNickname(const std::string& nickname)
         Client* client = it->second;
 		std::cout << client->getNickname();
         if (client->getNickname() == nickname) {
-            return client;  // Retourne un pointeur sur l'objet Client dans la map
+            return client;
+        }
+    }
+    return NULL;
+}
+
+Client* Server::findClientByFd(int clientFd)
+{
+	  for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+        Client* client = it->second;
+		std::cout << client->getSocketFd();
+        if (client->getSocketFd() == clientFd) {
+            return client;
         }
     }
     return NULL;
@@ -290,4 +302,17 @@ void Server::parseCommand(Client* client, const std::string &msg)
 		it->second->execute(*this, client, iss);
 	else
 		send(client->getSocketFd(), ("421 " + command + " :Unknown command\r\n").c_str(), msg.size(), 0);
+}
+
+// mode operator 
+bool Server::invitationToAccess(int guestFd, int clientFd, const std::string &channelName) {
+	Channel* chan = _channels[channelName];
+	if (chan && chan->isOperator(clientFd)) {
+		Client* client = findClientByFd(guestFd);
+		if (client) {
+			chan->addClient(client);
+			return true;
+		}
+	}
+	return false;
 }

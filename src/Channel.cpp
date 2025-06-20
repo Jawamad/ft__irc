@@ -1,7 +1,7 @@
 #include "../inc/Channel.hpp"
-Channel::Channel() {}
-Channel::Channel(const std::string &name): _name(name)
-{}
+
+Channel::Channel() : _inviteOnly(false) {}
+Channel::Channel(const std::string &name) : _name(name), _inviteOnly(false) {}
 Channel::Channel(const Channel& obj)
 {
 	*this = obj;
@@ -13,6 +13,9 @@ Channel& Channel::operator=(const Channel& obj)
 	{
 		_name = obj._name;
 		_clients = obj._clients;
+		// _clients = obj._clients;
+		// _operators = obj._operators;
+		_inviteOnly = obj._inviteOnly; 
 	}
 	return *this;
 }
@@ -35,6 +38,14 @@ void  Channel::setTopic(const std::string &topic)
 const std::map<int, Client*>&	Channel::getClients()const
 {
 	return _clients;
+}
+
+bool Channel::isInviteOnly() const {
+	return _inviteOnly;
+}
+
+void Channel::setInviteOnly(bool status) {
+	_inviteOnly = status;
 }
 
 void	Channel::addClient(Client* client)
@@ -84,7 +95,6 @@ void Channel::addOperator(int clientFd) {
 	}
 }
 
-
 void Channel::removeOperator(int clientFd) {
 	_operators.erase(clientFd);
 }
@@ -103,8 +113,3 @@ void Channel::clientGetsInviteByOperator(const std::string &nickName, Client &cl
 	addClient(&client);
 }
 
-bool Channel::invitationToAccess(int clientFd) {
-	if (channel.isOperator(clientFd)) {
-		channels[channelName]->addClient(client);
-	}
-}

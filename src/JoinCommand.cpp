@@ -25,7 +25,12 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 	}
 	else
 	{
-		channels[channelName]->addClient(client);
+		if (!channels[channelName]->isInviteOnly())
+			channels[channelName]->addClient(client);
+		else if (channels[channelName]->isInviteOnly())
+		{
+			invitationToAccess(int clientFd, channelName)
+		}
 	}
 	std::string joinMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " JOIN " + channelName + "\r\n";
 

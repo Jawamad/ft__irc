@@ -13,6 +13,8 @@ class Channel
 		std::string _topic;
 		std::map<int, Client*> _clients;
 		std::set<int> _operators;
+		bool inviteOnly;
+
 	public:
 		Channel();
 		Channel(const std::string &name);
@@ -25,7 +27,12 @@ class Channel
 		const std::map<int, Client*>&	getClients()const;
 		void  setTopic(const std::string &topic);
 
+		bool isInviteOnly() const;
+		void setInviteOnly(bool status);
+
+
 		void	addClient(Client* client);
+		void	getClientbyFd(int clientFd);
 		void	removeClient(int clientFd);
 		bool	hasClient(int clientFd) const;
 		void	broadcast( const std::string &message, int senderFd);
@@ -36,13 +43,8 @@ class Channel
 		void	removeOperator(int clientFd);
 
 		// operator
-		Client* findClientByNickname(const std::string& nickname);
 		void clientGetsKickByOperator(const std::string &nickName, Client &client);
 		void clientGetsInviteByOperator(const std::string &nickName, Client &client); 
-
-		// operator MODE
-		bool invitationToAccess(int clientFd);
-	
 };
 
 #endif

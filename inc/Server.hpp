@@ -44,6 +44,10 @@ class Server
 
 		// operator
 		Client* findClientByNickname(const std::string& nickname);
+		Client* findClientByFd(int clientFd);
+		// MODE
+		// bool invitationToAccess(int clientFd);
+		bool	invitationToAccess(int clientFd, const std::string &channelName);
 
 	private:
 		void	setupSocket();
