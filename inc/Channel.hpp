@@ -13,7 +13,7 @@ class Channel
 		std::string _topic;
 		std::map<int, Client*> _clients;
 		std::set<int> _operators;
-		bool inviteOnly;
+		bool _inviteOnly;
 
 	public:
 		Channel();

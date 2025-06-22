@@ -32,7 +32,6 @@ void InviteCommand::execute(Server &server, Client *client, std::istringstream &
 	if (channel)
 	{
 		std::cout << "FIND " << channelName << " ! " << std::endl;
-		//////////
 		std::cout << "operator :" << channel->isOperator(client->getSocketFd()) << std::endl;
 		
 		if (channel->isOperator(client->getSocketFd()))

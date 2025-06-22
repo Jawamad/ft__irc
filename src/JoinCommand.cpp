@@ -29,7 +29,7 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 			channels[channelName]->addClient(client);
 		else if (channels[channelName]->isInviteOnly())
 		{
-			invitationToAccess(int clientFd, channelName)
+			std::cout << "join this channel is only on invitation " << std::endl;
 		}
 	}
 	std::string joinMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " JOIN " + channelName + "\r\n";

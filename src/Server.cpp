@@ -305,14 +305,3 @@ void Server::parseCommand(Client* client, const std::string &msg)
 }
 
 // mode operator 
-bool Server::invitationToAccess(int guestFd, int clientFd, const std::string &channelName) {
-	Channel* chan = _channels[channelName];
-	if (chan && chan->isOperator(clientFd)) {
-		Client* client = findClientByFd(guestFd);
-		if (client) {
-			chan->addClient(client);
-			return true;
-		}
-	}
-	return false;
-}

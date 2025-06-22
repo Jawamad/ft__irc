@@ -31,10 +31,12 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 	if (modeletter == "+i")
 	{
 		channel->setInviteOnly(true);
+		std::cout << channel->isInviteOnly() << std::endl;
 		std::cout << "From now on," << channelName << " channel access is only on invitation" << std::endl;
 	}
 	else if (modeletter == "-i")
 	{
+		std::cout << channel->isInviteOnly() << std::endl;
 		channel->setInviteOnly(false);
 		std::cout << "From now on," << channelName << " channel access is open even without invitation" << std::endl;
 	}
