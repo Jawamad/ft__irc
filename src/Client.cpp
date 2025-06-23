@@ -1,11 +1,13 @@
 #include "../inc/Client.hpp"
 
-Client::Client(): _loggedIn(false)
+Client::Client(): _loggedIn(false), _hasPassedPassword(false), _hasUser(false), _hasNick(false)
 {
 
 }
 
-Client::Client(int fd, const std::string username, const std::string &ip): _socketFd(fd), _username(username), _loggedIn(false), _ip(ip)
+Client::Client(int fd, const std::string username, const std::string &ip)
+	: _socketFd(fd), _username(username), _loggedIn(false), _hasPassedPassword(false), _hasUser(false),
+		_hasNick(false), _ip(ip)
 {
 }
 
@@ -15,7 +17,9 @@ Client::Client(const Client& obj)
 }
 
 Client::~Client()
-{}
+{
+	std::cout << "Client destroyed for fd: " << _socketFd << std::endl;
+}
 
 Client& Client::operator=(const Client& obj)
 {
@@ -47,6 +51,10 @@ const std::string& Client::getNickname() const
 const std::string& Client::getUsername() const
 {
 	return _username;
+}
+std::string& Client::getBuffer()
+{
+	return _buffer;
 }
 const std::string& Client::getBuffer() const
 {
@@ -80,22 +88,19 @@ void Client::clearBuffer()
 }
 
 // Network
-std::string Client::receiveMessage()
+bool Client::receiveMessage()
 {
 	char buffer[512];
 	std::memset(buffer, 0, sizeof(buffer));
 	int bytes = recv(_socketFd, buffer, sizeof(buffer) - 1, 0);
 
-	//a voir si on a ds erreurs a gerer ici
 	if (bytes <= 0)
-		return "";
+		return false;
 
 	buffer[bytes] = '\0';
-	std::string msg(buffer);
 
-	_buffer += msg;
-	//sert a debug
-	return msg;
+	_buffer += buffer;
+	return true;
 }
 
 bool	Client::hasPassedPassword() const
