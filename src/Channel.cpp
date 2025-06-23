@@ -40,6 +40,9 @@ const std::map<int, Client*>&	Channel::getClients()const
 	return _clients;
 }
 
+///////////////////////////////////////
+
+
 bool Channel::isInviteOnly() const {
 	return _inviteOnly;
 }
@@ -47,6 +50,18 @@ bool Channel::isInviteOnly() const {
 void Channel::setInviteOnly(bool status) {
 	_inviteOnly = status;
 }
+
+///////////////////////////////////////
+
+bool Channel::topicIsOperatorModOnly()  const {
+	return _inviteOnly;
+}
+
+void Channel::setTopicstatus(bool status){
+	_inviteOnly = status;
+}
+
+////////////////////////////////////////
 
 void	Channel::addClient(Client* client)
 {

@@ -7,7 +7,6 @@ void TopicCommand::execute(Server &server, Client *client, std::istringstream &a
 	std::string newTopic;
 	args >> channelName >> newTopic;
 
-
 	(void)server;
 	(void)client;
 
@@ -15,7 +14,7 @@ void TopicCommand::execute(Server &server, Client *client, std::istringstream &a
 	 	channelName = '#' + channelName;
 	Channel* channel = server.getChan(channelName); 
 
-	if(!newTopic.empty())
+	if(!newTopic.empty() && !channel->topisIsOperatorModOnly())
 	{
 		channel->setTopic(newTopic);
 		std::cout << "Topic of channel updated to : " << channel->getTopic() << std::endl;
@@ -29,3 +28,10 @@ void TopicCommand::execute(Server &server, Client *client, std::istringstream &a
 		return;
 	}
 }
+
+	if (!channel->topisIsOperatorModOnly())
+			channel->setTopic(newTopic);
+		else if (channel->topisIsOperatorModOnly())
+		{
+			std::cout << "the topic can be modified only by an operator " << std::endl;
+		}

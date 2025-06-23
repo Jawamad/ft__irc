@@ -14,6 +14,7 @@ class Channel
 		std::map<int, Client*> _clients;
 		std::set<int> _operators;
 		bool _inviteOnly;
+		bool _
 
 	public:
 		Channel();
@@ -29,6 +30,9 @@ class Channel
 
 		bool isInviteOnly() const;
 		void setInviteOnly(bool status);
+
+		bool topicIsOperatorModOnly() const;
+		void setTopicstatus(bool status);
 
 
 		void	addClient(Client* client);
