@@ -1,7 +1,7 @@
 #include "../inc/Channel.hpp"
 
 Channel::Channel() : _inviteOnly(false) {}
-Channel::Channel(const std::string &name) : _name(name), _inviteOnly(false) {}
+Channel::Channel(const std::string &name) : _name(name), _inviteOnly(false), topicOperatorOnly(false) {}
 Channel::Channel(const Channel& obj)
 {
 	*this = obj;
@@ -16,6 +16,7 @@ Channel& Channel::operator=(const Channel& obj)
 		// _clients = obj._clients;
 		// _operators = obj._operators;
 		_inviteOnly = obj._inviteOnly; 
+		_topicOperatorOnly = obj.topicOperatorOnly;
 	}
 	return *this;
 }
@@ -54,11 +55,11 @@ void Channel::setInviteOnly(bool status) {
 ///////////////////////////////////////
 
 bool Channel::topicIsOperatorModOnly()  const {
-	return _inviteOnly;
+	return _topicOperatorOnly ;
 }
 
 void Channel::setTopicstatus(bool status){
-	_inviteOnly = status;
+	__topicOperatorOnly = status;
 }
 
 ////////////////////////////////////////
@@ -105,7 +106,7 @@ void Channel::addOperator(int clientFd) {
 	if (hasClient(clientFd))
 	{
 		_operators.insert(clientFd);
-		int last = *(_operators.rbegin()); // reverse begin -> dernier élément
+		int last = *(_operators.rbegin());
 	    std::cout << "Last operator: " << last << std::endl;
 	}
 }

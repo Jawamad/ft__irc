@@ -14,7 +14,7 @@ class Channel
 		std::map<int, Client*> _clients;
 		std::set<int> _operators;
 		bool _inviteOnly;
-		bool _
+		bool _topicOperatorOnly;
 
 	public:
 		Channel();
