@@ -1,7 +1,7 @@
 #include "../inc/Channel.hpp"
 
 Channel::Channel() : _inviteOnly(false) {}
-Channel::Channel(const std::string &name) : _name(name), _inviteOnly(false), topicOperatorOnly(false) {}
+Channel::Channel(const std::string &name) : _name(name), _inviteOnly(false), _topicOperatorOnly(false) {}
 Channel::Channel(const Channel& obj)
 {
 	*this = obj;
@@ -16,7 +16,7 @@ Channel& Channel::operator=(const Channel& obj)
 		// _clients = obj._clients;
 		// _operators = obj._operators;
 		_inviteOnly = obj._inviteOnly; 
-		_topicOperatorOnly = obj.topicOperatorOnly;
+		_topicOperatorOnly = obj._topicOperatorOnly;
 	}
 	return *this;
 }
@@ -59,7 +59,7 @@ bool Channel::topicIsOperatorModOnly()  const {
 }
 
 void Channel::setTopicstatus(bool status){
-	__topicOperatorOnly = status;
+	_topicOperatorOnly = status;
 }
 
 ////////////////////////////////////////
