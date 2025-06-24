@@ -27,9 +27,13 @@ class Channel
 		Channel& operator=(const Channel& obj);
 
 		const std::string&		getName() const;
+		const std::string&		getChanPassword() const;
 		const std::string&		getTopic() const;
 		const std::map<int, Client*>&	getClients()const;
+
+		//
 		void  setTopic(const std::string &topic);
+		void  setChanPassword(const std::string &chanPassword);
 
 		// MODE
 		bool isInviteOnly() const;

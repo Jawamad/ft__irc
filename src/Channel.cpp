@@ -26,6 +26,11 @@ const std::string&	Channel::getName() const
 	return _name;
 }
 
+const std::string&		getChanPassword() const
+{
+	return _chanPassword;
+}
+
 const std::string&	Channel::getTopic() const
 {
 	return _topic;
@@ -34,6 +39,11 @@ const std::string&	Channel::getTopic() const
 void  Channel::setTopic(const std::string &topic)
 {
 	this->_topic = topic;
+}
+
+void  Channel::setChanPassword(const std::string &chanPassword)
+{
+	this->_chanPassword = chanPassword;
 }
 
 const std::map<int, Client*>&	Channel::getClients()const

@@ -4,7 +4,8 @@
 void JoinCommand::execute(Server &server, Client *client, std::istringstream &args)
 {
 	std::string channelName;
-	args >> channelName;
+	std::string channelPassword;
+	args >> channelName >> channelPassword;
 
 	if(channelName.empty())
 	{
@@ -31,6 +32,14 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 		{
 			std::cout << "join this channel is only on invitation " << std::endl;
 		}
+		// MODE k+ password required
+		else if (channels[channelName]->isPasswordOnly())
+		{
+			if (channels[channelName]-> == channelPassword)
+			{
+				channels[channelName]->addClient(client);
+			}
+		} 
 	}
 	std::string joinMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " JOIN " + channelName + "\r\n";
 
