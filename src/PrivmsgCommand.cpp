@@ -5,16 +5,27 @@ void PrivmsgCommand::execute(Server &server, Client *client, std::istringstream 
 {
 	std::string target;
 	std::string message;
+
 	args >> target;
 	std::getline(args, message);
-	if (message.size() > 0 && (message[0] == ' ' || message[0] == ':'))
-		message = message.substr(1);
-	
+
 	if (target.empty() || message.empty())
 	{
 		std::string err = "461 PRIVMSG :Not enough parameters\r\n";
 		send(client->getSocketFd(), err.c_str(), err.size(), 0);
 		return;
+	}
+
+	bool isDcc = (
+		message.size() >= 2 &&
+		message[0] == '\x01' &&
+		message[message.size() - 1] == '\x01'
+	);
+
+	if (!isDcc)
+	{
+		while (!message.empty() && (message[0] == ' ' || message[0] == ':'))
+			message = message.substr(1);
 	}
 
 	if (target[0] == '#')
@@ -34,24 +45,33 @@ void PrivmsgCommand::execute(Server &server, Client *client, std::istringstream 
 			send(client->getSocketFd(), err.c_str(), err.size(), 0);
 			return;
 		}
-		std::string fullMessage = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " PRIVMSG " + target + " " + message + "\r\n";
+
+		std::string fullMessage = ":" + client->getNickname() + "!" +
+			client->getUsername() + "@" + client->getIp() +
+			" PRIVMSG " + target + " :" + message + "\r\n";
+
 		channel->broadcast(fullMessage, client->getSocketFd());
 	}
 	else
 	{
 		bool found = false;
 		std::map<int, Client*> clients = server.getClients();
-		for(std::map<int, Client*>::iterator it = clients.begin();it != clients.end(); ++it)
+
+		for (std::map<int, Client*>::iterator it = clients.begin(); it != clients.end(); ++it)
 		{
 			if (it->second->getNickname() == target)
 			{
 				found = true;
-				std::string fullMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " PRIVMSG " + target + " " + message + "\r\n";
-				send(it->second->getSocketFd(), fullMsg.c_str(), fullMsg.size(), 0);
+
+				std::string fullMsg = ":" + client->getNickname() + "!" +
+					client->getUsername() + "@" + client->getIp() +
+					" PRIVMSG " + target + " :" + message + "\r\n";
+
+				send(it->first, fullMsg.c_str(), fullMsg.size(), 0);
 				break;
 			}
 		}
-		if(!found)
+		if (!found)
 		{
 			std::string err = "401 " + target + " :No such nick\r\n";
 			send(client->getSocketFd(), err.c_str(), err.size(), 0);
