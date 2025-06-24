@@ -26,20 +26,45 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 	}
 	else
 	{
-		if (!channels[channelName]->isInviteOnly())
-			channels[channelName]->addClient(client);
-		else if (channels[channelName]->isInviteOnly())
-		{
-			std::cout << "join this channel is only on invitation " << std::endl;
-		}
-		// MODE k+ password required
-		else if (channels[channelName]->isPasswordOnly())
-		{
-			if (channels[channelName]->getChanPassword() == channelPassword)
-			{
+		// Vérifier si le mode "i" ou "k" est actif
+		if (channels[channelName]->isInviteOnly() && channels[channelName]->isPasswordOnly()) {
+			std::cout << "Le canal est sur invitation et nécessite un mot de passe." << std::endl;
+			// Si le canal est en mode 'i' et 'k', on refuse l'accès.
+		} 
+		else if (channels[channelName]->isInviteOnly()) {
+			std::cout << "Ce canal est uniquement sur invitation." << std::endl;
+			// Si seul le mode 'i' est activé, on bloque l'accès.
+		} 
+		else if (channels[channelName]->isPasswordOnly()) {
+			if (channels[channelName]->getChanPassword() == channelPassword) {
 				channels[channelName]->addClient(client);
+			} else {
+				std::cout << "Vous ne pouvez pas rejoindre ce canal à cause du mot de passe." << std::endl;
 			}
 		} 
+		else {
+			// Le canal est accessible, aucun des modes 'i' ou 'k' n'est activé.
+			channels[channelName]->addClient(client);
+		}
+
+		// if (!channels[channelName]->isInviteOnly() && !channels[channelName]->isPasswordOnly())
+		// 	channels[channelName]->addClient(client);
+		// else if (channels[channelName]->isInviteOnly())
+		// {
+		// 	std::cout << "join this channel is only on invitation " << std::endl;
+		// }
+		// // MODE k+ password required
+		// else if (channels[channelName]->isPasswordOnly())
+		// {
+		// 	if (channels[channelName]->getChanPassword() == channelPassword)
+		// 	{
+		// 		channels[channelName]->addClient(client);
+		// 	}
+		// 	else 
+		// 	{
+		// 		std::cout << "you cannot join this channel due to password " << std::endl;
+		// 	}
+		// } 
 	}
 	std::string joinMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " JOIN " + channelName + "\r\n";
 
