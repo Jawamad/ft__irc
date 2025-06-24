@@ -40,4 +40,17 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		channel->setInviteOnly(false);
 		std::cout << "From now on," << channelName << " channel access is open even without invitation" << std::endl;
 	}
+	else if (modeletter == "+t")
+	{
+		channel->setTopicstatus(true);
+		std::cout << channel->topicIsOperatorModOnly() << std::endl;
+		std::cout << "From now on," << channelName << " channel's topic can only be modify by operator" << std::endl;
+	}
+	else if (modeletter == "-t")
+	{
+		channel->setTopicstatus(false);
+		std::cout << channel->topicIsOperatorModOnly() << std::endl;
+		std::cout << "From now on," << channelName << " channel's topic can be modify by everyone" << std::endl;
+
+	}
 }

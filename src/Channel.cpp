@@ -58,7 +58,7 @@ bool Channel::topicIsOperatorModOnly()  const {
 	return _topicOperatorOnly ;
 }
 
-void Channel::setTopicstatus(bool status){
+void Channel::setTopicstatus(bool status) {
 	_topicOperatorOnly = status;
 }
 
