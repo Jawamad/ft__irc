@@ -14,7 +14,7 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 	(void)server; 
 	std::string channelName;
 	std::string modeletter;
-	args >> channelName >> modeletter;
+	args >> channelName >> modeletter >> modeValue;
 
 	if(channelName.empty())
 	{
@@ -42,15 +42,28 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 	}
 	else if (modeletter == "+t")
 	{
-		channel->setTopicstatus(true);
+		channel->setTopicStatus(true);
 		std::cout << channel->topicIsOperatorModOnly() << std::endl;
 		std::cout << "From now on," << channelName << " channel's topic can only be modify by operator" << std::endl;
 	}
 	else if (modeletter == "-t")
 	{
-		channel->setTopicstatus(false);
+		channel->setTopicStatus(false);
 		std::cout << channel->topicIsOperatorModOnly() << std::endl;
 		std::cout << "From now on," << channelName << " channel's topic can be modify by everyone" << std::endl;
+
+	}
+	else if (modeletter == "+k")
+	{
+		channel->setPasswordStatus(true);
+		std::cout << channel->isPasswordOnly() << std::endl;
+		std::cout << "From now on," << channelName << " channel access need password" << std::endl;
+	}
+	else if (modeletter == "-k")
+	{
+		channel->setPasswordStatus(false);
+		std::cout << channel->isInviteOnly() << std::endl;
+		std::cout << "From now on," << channelName << " channel access not need password" << std::endl;
 
 	}
 }

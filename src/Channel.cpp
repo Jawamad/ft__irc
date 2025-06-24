@@ -58,7 +58,17 @@ bool Channel::topicIsOperatorModOnly()  const {
 	return _topicOperatorOnly ;
 }
 
-void Channel::setTopicstatus(bool status) {
+void Channel::setTopicStatus(bool status) {
+	_topicOperatorOnly = status;
+}
+
+////////////////////////////////////////
+
+bool Channel::isPasswordOnly()  const {
+	return _topicOperatorOnly ;
+}
+
+void Channel::setPasswordStatus(bool status) {
 	_topicOperatorOnly = status;
 }
 

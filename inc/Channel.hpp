@@ -13,8 +13,11 @@ class Channel
 		std::string _topic;
 		std::map<int, Client*> _clients;
 		std::set<int> _operators;
+		// MODE 
 		bool _inviteOnly;
 		bool _topicOperatorOnly;
+		bool _accessPwdOnly;
+		std::string		_chanPassword;
 
 	public:
 		Channel();
@@ -28,12 +31,17 @@ class Channel
 		const std::map<int, Client*>&	getClients()const;
 		void  setTopic(const std::string &topic);
 
+		// MODE
 		bool isInviteOnly() const;
 		void setInviteOnly(bool status);
 
 		bool topicIsOperatorModOnly() const;
-		void setTopicstatus(bool status);
+		void setTopicStatus(bool status);
 
+		bool isPasswordOnly() const;
+		void setPasswordStatus(bool status);
+
+		//
 
 		void	addClient(Client* client);
 		void	getClientbyFd(int clientFd);
