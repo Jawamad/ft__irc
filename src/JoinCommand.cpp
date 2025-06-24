@@ -35,7 +35,7 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 		// MODE k+ password required
 		else if (channels[channelName]->isPasswordOnly())
 		{
-			if (channels[channelName]-> == channelPassword)
+			if (channels[channelName]->getChanPassword() == channelPassword)
 			{
 				channels[channelName]->addClient(client);
 			}

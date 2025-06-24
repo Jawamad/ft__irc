@@ -26,7 +26,7 @@ const std::string&	Channel::getName() const
 	return _name;
 }
 
-const std::string&		getChanPassword() const
+const std::string&		Channel::getChanPassword() 
 {
 	return _chanPassword;
 }

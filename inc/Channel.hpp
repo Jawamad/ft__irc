@@ -27,7 +27,7 @@ class Channel
 		Channel& operator=(const Channel& obj);
 
 		const std::string&		getName() const;
-		const std::string&		getChanPassword() const;
+		const std::string&		getChanPassword();
 		const std::string&		getTopic() const;
 		const std::map<int, Client*>&	getClients()const;
 
