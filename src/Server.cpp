@@ -13,6 +13,7 @@ Server::Server(int port, const std::string &password): _serverFd(-1), _port(port
 	_commands["PING"] = new PingCommand();
 	_commands["CAP"] = new CapCommand();
 	_commands["WHO"] = new WhoCommand();
+	_commands["LIST"] = new ListCommand();
 	setupSocket();
 }
 Server::~Server()
@@ -150,7 +151,6 @@ void	Server::run()
 		if (FD_ISSET(_serverFd, &_readFds))
 			acceptNewClient();
 		
-		//a verifier
 		std::map<int, Client*>::iterator it = _clients.begin();
 		while (it != _clients.end())
 		{

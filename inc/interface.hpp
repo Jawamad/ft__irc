@@ -11,5 +11,6 @@
 #include "PingCommand.hpp"
 #include "CapCommand.hpp"
 #include "WhoCommand.hpp"
+#include "ListCommand.hpp"
 
 #endif
