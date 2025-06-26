@@ -8,6 +8,7 @@
 # include <cerrno>
 # include <cstdio>
 # include <cstdlib>
+# include <ctime>
 # include <cstring>
 # include <csignal>
 # include <iostream>
@@ -17,8 +18,7 @@
 # include <fstream>
 # include <algorithm>
 # include <stdio.h>
-
-#define DEBUG false
+# include <fcntl.h>
 
 class Bot
 {
@@ -34,17 +34,16 @@ class Bot
 
 		std::string receive;
 		std::vector<std::string> messages;
-		std::ofstream log;
-
-		std::vector<std::string> split(std::string str, std::string delim);
 
 	public:
 		Bot(bool *sig, std::string addr, int port = 6667, std::string pass = std::string(), std::string nick = "bot");
 		~Bot();
 
 		void	online();
+		void	send_command(std::string command);
 		void	talk(std::string message);
+		void	serv_response();
+		void	pseudo_sleep(unsigned int seconds);
 };
-
 
 #endif
