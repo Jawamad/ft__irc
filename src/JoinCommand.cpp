@@ -26,46 +26,73 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 	}
 	else
 	{
-		// Vérifier si le mode "i" ou "k" est actif
-		if (channels[channelName]->isInviteOnly() && channels[channelName]->isPasswordOnly()) {
-			std::cout << "Le canal est sur invitation et nécessite un mot de passe." << std::endl;
-			// Si le canal est en mode 'i' et 'k', on refuse l'accès.
-		} 
-		else if (channels[channelName]->isInviteOnly()) {
-			std::cout << "Ce canal est uniquement sur invitation." << std::endl;
-			// Si seul le mode 'i' est activé, on bloque l'accès.
-		} 
-		else if (channels[channelName]->isPasswordOnly()) {
-			if (channels[channelName]->getChanPassword() == channelPassword) {
-				channels[channelName]->addClient(client);
-			} else {
-				std::cout << "Vous ne pouvez pas rejoindre ce canal à cause du mot de passe." << std::endl;
-			}
-		} 
-		else {
-			// Le canal est accessible, aucun des modes 'i' ou 'k' n'est activé.
-			channels[channelName]->addClient(client);
-		}
+		Channel* channel = channels[channelName];
 
-		// if (!channels[channelName]->isInviteOnly() && !channels[channelName]->isPasswordOnly())
-		// 	channels[channelName]->addClient(client);
-		// else if (channels[channelName]->isInviteOnly())
-		// {
-		// 	std::cout << "join this channel is only on invitation " << std::endl;
-		// }
-		// // MODE k+ password required
-		// else if (channels[channelName]->isPasswordOnly())
-		// {
-		// 	if (channels[channelName]->getChanPassword() == channelPassword)
-		// 	{
+// Vérifie si le canal est plein
+if (channel->isLimitedNbUser() && channel->getClientCount() >= channel->getUserLimit()) {
+	sendError(client, ERR_CHANNELISFULL, channel->getName(), ":Cannot join channel (+l)");
+	return;
+}
+
+// Canal sur invitation + mot de passe
+if (channel->isInviteOnly() && channel->isPasswordOnly()) {
+	if (!channel->isInvited(client)) {
+		std::cout << "Ce canal est sur invitation seulement." << std::endl;
+		sendError(client, ERR_INVITEONLYCHAN, channel->getName(), ":Cannot join channel (+i)");
+		return;
+	}
+	if (channel->getChanPassword() != channelPassword) {
+		std::cout << "Mot de passe incorrect." << std::endl;
+		sendError(client, ERR_BADCHANNELKEY, channel->getName(), ":Cannot join channel (+k)");
+		return;
+	}
+	channel->addClient(client);
+}
+
+// Canal sur invitation uniquement
+else if (channel->isInviteOnly()) {
+	if (!channel->isInvited(client)) {
+		std::cout << "Ce canal est uniquement sur invitation." << std::endl;
+		sendError(client, ERR_INVITEONLYCHAN, channel->getName(), ":Cannot join channel (+i)");
+		return;
+	}
+	channel->addClient(client);
+}
+
+// Canal avec mot de passe uniquement
+else if (channel->isPasswordOnly()) {
+	if (channel->getChanPassword() == channelPassword) {
+		channel->addClient(client);
+	} else {
+		std::cout << "Mot de passe incorrect." << std::endl;
+		sendError(client, ERR_BADCHANNELKEY, channel->getName(), ":Cannot join channel (+k)");
+	}
+}
+
+// Canal ouvert
+else {
+	channel->addClient(client);
+}
+
+		// Vérifier si le mode "i" ou "k" est actif
+		// if (channels[channelName]->isInviteOnly() && channels[channelName]->isPasswordOnly()) {
+		// 	std::cout << "Le canal est sur invitation et nécessite un mot de passe." << std::endl;
+		// } 
+		// else if (channels[channelName]->isInviteOnly()) {
+		// 	std::cout << "Ce canal est uniquement sur invitation." << std::endl;
+		// } 
+		// else if (channels[channelName]->isPasswordOnly()) {
+		// 	if (channels[channelName]->getChanPassword() == channelPassword) {
 		// 		channels[channelName]->addClient(client);
-		// 	}
-		// 	else 
-		// 	{
-		// 		std::cout << "you cannot join this channel due to password " << std::endl;
+		// 	} else {
+		// 		std::cout << "Vous ne pouvez pas rejoindre ce canal à cause du mot de passe." << std::endl;
 		// 	}
 		// } 
+		// else {
+		// 	channels[channelName]->addClient(client);
+		// }
 	}
+	
 	std::string joinMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " JOIN " + channelName + "\r\n";
 
 	server.getChan(channelName)->broadcast(joinMsg, -1);

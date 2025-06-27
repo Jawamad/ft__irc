@@ -21,6 +21,7 @@ Channel& Channel::operator=(const Channel& obj)
 	return *this;
 }
 
+/// GETTERS ///////// 
 const std::string&	Channel::getName() const
 {
 	return _name;
@@ -36,6 +37,22 @@ const std::string&	Channel::getTopic() const
 	return _topic;
 }
 
+
+const std::map<int, Client*>&	Channel::getClients()const
+{
+	return _clients;
+}
+
+int Channel::getUserLimit() const {
+    return _userLimit;
+}
+
+/// SETTERS  ///////////
+
+void Channel::setUserLimit(int limit) {
+	_userLimit = limit;
+}
+
 void  Channel::setTopic(const std::string &topic)
 {
 	this->_topic = topic;
@@ -46,10 +63,7 @@ void  Channel::setChanPassword(const std::string &chanPassword)
 	this->_chanPassword = chanPassword;
 }
 
-const std::map<int, Client*>&	Channel::getClients()const
-{
-	return _clients;
-}
+
 
 ///////////////////////////////////////
 
@@ -75,14 +89,21 @@ void Channel::setTopicStatus(bool status) {
 ////////////////////////////////////////
 
 bool Channel::isPasswordOnly()  const {
-	return _topicOperatorOnly ;
+	return _accessPwdOnly;
 }
 
 void Channel::setPasswordStatus(bool status) {
-	_topicOperatorOnly = status;
+	_accessPwdOnly = status;
 }
 
-////////////////////////////////////////
+///////////////////////////////////////
+
+bool Channel::isLimitedNbUser() const {
+    return _hasUserLimit;
+}
+
+///////////////////////////////////////
+
 
 void	Channel::addClient(Client* client)
 {

@@ -17,7 +17,9 @@ class Channel
 		bool _inviteOnly;
 		bool _topicOperatorOnly;
 		bool _accessPwdOnly;
+		bool _hasUserLimit;
 		std::string		_chanPassword;
+		int _userLimit;
 
 	public:
 		Channel();
@@ -30,20 +32,24 @@ class Channel
 		const std::string&		getChanPassword();
 		const std::string&		getTopic() const;
 		const std::map<int, Client*>&	getClients()const;
+		int getUserLimit() const;
 
 		//
-		void  setTopic(const std::string &topic);
-		void  setChanPassword(const std::string &chanPassword);
+		void	setTopic(const std::string &topic);
+		void	setChanPassword(const std::string &chanPassword);
 
 		// MODE
-		bool isInviteOnly() const;
-		void setInviteOnly(bool status);
+		bool	isInviteOnly() const;
+		void	setInviteOnly(bool status);
 
-		bool topicIsOperatorModOnly() const;
-		void setTopicStatus(bool status);
+		bool	topicIsOperatorModOnly() const;
+		void	setTopicStatus(bool status);
 
-		bool isPasswordOnly() const;
-		void setPasswordStatus(bool status);
+		bool	isPasswordOnly() const;
+		void	setPasswordStatus(bool status);
+
+		bool	isLimitedNbUser() const;
+		void	setUserLimit(int limit);
 
 		//
 

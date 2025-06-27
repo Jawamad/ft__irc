@@ -82,4 +82,37 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 			std::cout << "You do not have the rights to set a password for this channel (not operator)" << std::endl;
 		}
 	}
+	else if (modeletter == "+l")
+	{
+		if (channel->isOperator(client->getSocketFd())) 
+		{
+			int userLimit = std::stoi(modePwdValue);
+			
+			if (userLimit <= 0) {
+				std::cerr << "Invalid user limit: must be > 0\n";
+				return;
+			}
+			channel->isLimitedNbUser(true);
+			channel->setUserLimit(userLimit);
+			std::cout << "User limit set to: " << userLimit << std::endl;
+			std::cout << "From now on, " << channelName << " channel is limited to " << userLimit << " people" << std::endl;
+		}
+		else
+		{
+			std::cout << "You do not have the rights to set the user limit for this channel (not operator)" << std::endl;
+		}
+	} 
+	else if (modeletter = "-l")
+	{
+		if (channel->isOperator(client->getSocketFd()))
+		{
+			channel->isLimitedNbUser(false);
+			std::cout << "From now on," << channelName << " has no limited number of users" << std::endl;
+		}
+		else
+		{
+			std::cout << "You do not have the rights to set the user limit for this channel (not operator)" << std::endl;
+		}
+
+	}
 }
