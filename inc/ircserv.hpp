@@ -17,4 +17,5 @@
 # include "Client.hpp"
 # include "Channel.hpp"
 # include "ICommand.hpp"
+# include <csignal>
 #endif

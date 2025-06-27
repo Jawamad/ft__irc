@@ -1,6 +1,17 @@
 #include "../inc/Server.hpp"
 #include "../inc/interface.hpp"
 
+volatile sig_atomic_t g_shouldExit = 0;
+
+void handleSignal(int signum)
+{
+	if (signum == SIGINT)
+	{
+		std::cout << "\n[INFO] Caught SIGINT (Ctrl+C). Shutting down..." << std::endl;
+		g_shouldExit = 1;
+	}
+}
+
 Server::Server(int port, const std::string &password): _serverFd(-1), _port(port), _password(password), _host("localhost"), _maxFd(0)
 {
 	_commands["NICK"] = new NickCommand();
@@ -138,7 +149,8 @@ bool	Server::start()
 }
 void	Server::run()
 {
-	while (true)
+	std::signal(SIGINT, handleSignal);
+	while (!g_shouldExit)
 	{
 		updateFdSet();
 		int activity = select(_maxFd + 1, &_readFds, NULL, NULL, NULL);
