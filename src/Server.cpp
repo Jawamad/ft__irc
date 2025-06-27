@@ -132,7 +132,7 @@ bool	Server::hasChannel(std::string chanName)
 //server setup
 bool	Server::start()
 {
-	std::cout << "Server start" << std::endl;
+	std::cout << "Server has start" << std::endl;
 	run();
 	return true;
 }
