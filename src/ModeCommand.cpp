@@ -10,8 +10,6 @@
 // — o : Donner/retirer le privilège de l’opérateur de canal
 // — l : Définir/supprimer la limite d’utilisateurs pour le canal
 
-
-
 void ModeCommand::execute(Server &server, Client *client, std::istringstream &args)
 {
 	(void)server; 

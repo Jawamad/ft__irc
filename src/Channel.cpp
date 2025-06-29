@@ -151,7 +151,7 @@ void Channel::addOperator(int clientFd) {
 	if (hasClient(clientFd))
 	{
 		_operators.insert(clientFd);
-		int last = *(_operators.rbegin());
+		// int last = *(_operators.rbegin());
 	    // std::cout << "Last operator: " << last << std::endl;
 	}
 }
