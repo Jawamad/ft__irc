@@ -1,5 +1,7 @@
 #include "../inc/ModeCommand.hpp"
 #include "../inc/Server.hpp"
+#include <cstdlib> 
+
 
 // MODES
 // — i : Définir/supprimer le canal sur invitation uniquement
@@ -9,13 +11,14 @@
 // — l : Définir/supprimer la limite d’utilisateurs pour le canal
 
 
+
 void ModeCommand::execute(Server &server, Client *client, std::istringstream &args)
 {
 	(void)server; 
 	std::string channelName;
 	std::string modeletter;
-	std::string modePwdValue;
-	args >> channelName >> modeletter >> modePwdValue;
+	std::string modeValue;
+	args >> channelName >> modeletter >> modeValue;
 
 	if(channelName.empty())
 	{
@@ -59,9 +62,9 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		if (channel->isOperator(client->getSocketFd()))
 		{
 			channel->setPasswordStatus(true);
-			channel->setChanPassword(modePwdValue);
+			channel->setChanPassword(modeValue);
 			std::cout << channel->isPasswordOnly() << std::endl;
-			std::cout << modePwdValue << std::endl;
+			std::cout << modeValue << std::endl;
 			std::cout << "From now on," << channelName << " channel access need password" << std::endl;
 		}
 		else
@@ -86,13 +89,13 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 	{
 		if (channel->isOperator(client->getSocketFd())) 
 		{
-			int userLimit = std::stoi(modePwdValue);
+			int userLimit = std::atoi(modeValue.c_str());
 			
 			if (userLimit <= 0) {
 				std::cerr << "Invalid user limit: must be > 0\n";
 				return;
 			}
-			channel->isLimitedNbUser(true);
+			channel->setLimitedNbUser(true);
 			channel->setUserLimit(userLimit);
 			std::cout << "User limit set to: " << userLimit << std::endl;
 			std::cout << "From now on, " << channelName << " channel is limited to " << userLimit << " people" << std::endl;
@@ -102,11 +105,11 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 			std::cout << "You do not have the rights to set the user limit for this channel (not operator)" << std::endl;
 		}
 	} 
-	else if (modeletter = "-l")
+	else if (modeletter == "-l")
 	{
 		if (channel->isOperator(client->getSocketFd()))
 		{
-			channel->isLimitedNbUser(false);
+			channel->setLimitedNbUser(false);
 			std::cout << "From now on," << channelName << " has no limited number of users" << std::endl;
 		}
 		else
@@ -114,5 +117,30 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 			std::cout << "You do not have the rights to set the user limit for this channel (not operator)" << std::endl;
 		}
 
+	}
+	else if (modeletter == "+o" || modeletter == "-o")
+	{
+		if (!channel->isOperator(client->getSocketFd())) {
+			std::cout << "You must be an operator to modify operator status.\n";
+			return;
+		}
+
+		Client* target = server.findClientByNickname(modeValue);
+		if (!target || !channel->hasClient(target->getSocketFd())) {
+			std::cout << "Target user not in the channel.\n";
+			return;
+		}
+
+		if (modeletter == "+o") {
+			std::cout << modeValue << "est maintenant operateur ! \n";
+			channel->addOperator(target->getSocketFd());
+
+		} else {
+			std::cout << modeValue << "n'est plus operateur ! \n";
+			channel->removeOperator(target->getSocketFd());
+		}
+
+		std::string msg = ":" + client->getNickname() + " MODE " + channelName + " " + modeletter + " " + modeValue + "\r\n";
+		channel->broadcast(msg, -1);
 	}
 }

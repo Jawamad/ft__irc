@@ -32,7 +32,7 @@ class Channel
 		const std::string&		getChanPassword();
 		const std::string&		getTopic() const;
 		const std::map<int, Client*>&	getClients()const;
-		int getUserLimit() const;
+		int	getUserLimit() const;
 
 		//
 		void	setTopic(const std::string &topic);
@@ -48,6 +48,7 @@ class Channel
 		bool	isPasswordOnly() const;
 		void	setPasswordStatus(bool status);
 
+		void setLimitedNbUser(bool status);
 		bool	isLimitedNbUser() const;
 		void	setUserLimit(int limit);
 
@@ -58,7 +59,7 @@ class Channel
 		void	removeClient(int clientFd);
 		bool	hasClient(int clientFd) const;
 		void	broadcast( const std::string &message, int senderFd);
-		size_t	getClientCount() const;
+		int		getClientCount() const;
 
 		bool	isOperator(int clientFd) const;
 		void	addOperator(int clientFd);

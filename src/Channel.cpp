@@ -63,8 +63,6 @@ void  Channel::setChanPassword(const std::string &chanPassword)
 	this->_chanPassword = chanPassword;
 }
 
-
-
 ///////////////////////////////////////
 
 
@@ -104,6 +102,12 @@ bool Channel::isLimitedNbUser() const {
 
 ///////////////////////////////////////
 
+void Channel::setLimitedNbUser(bool status) {
+    _hasUserLimit = status;
+}
+
+///////////////////////////////////////
+
 
 void	Channel::addClient(Client* client)
 {
@@ -129,7 +133,7 @@ void	Channel::broadcast( const std::string &message, int senderFd)
 			send(it->first, message.c_str(), message.length(), 0);
 	}
 }
-size_t	Channel::getClientCount() const
+int	Channel::getClientCount() const
 {
 	return _clients.size();
 }
@@ -148,7 +152,7 @@ void Channel::addOperator(int clientFd) {
 	{
 		_operators.insert(clientFd);
 		int last = *(_operators.rbegin());
-	    std::cout << "Last operator: " << last << std::endl;
+	    // std::cout << "Last operator: " << last << std::endl;
 	}
 }
 
