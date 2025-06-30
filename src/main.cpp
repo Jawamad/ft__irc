@@ -12,7 +12,7 @@ int main(int argc, char **argv)
 	int port = std::atoi(argv[1]);
 	if (port <= 0 || port > 65535)
 	{
-		std::cerr << "Erreur: Port invalide.\n";
+		std::cerr << "Error: invalid port.\n";
 		return 1;
 	}
 

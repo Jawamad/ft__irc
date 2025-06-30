@@ -143,8 +143,9 @@ bool	Server::hasChannel(std::string chanName)
 //server setup
 bool	Server::start()
 {
-	std::cout << "Server has start!" << std::endl;
+	std::cout << "Server is running !" << std::endl;
 	run();
+	std::cout << "Server is closed !" << std::endl;
 	return true;
 }
 void	Server::run()
@@ -202,7 +203,7 @@ void	Server::handleClientMessage(int clientFd)
 }
 void	Server::removeClient(int clientFd)
 {
-	close( clientFd);
+	close(clientFd);
 	_clients.erase(clientFd);
 }
 void	Server::setupSocket()
@@ -211,7 +212,8 @@ void	Server::setupSocket()
 	if (_serverFd < 0)
 	{
 		std::cerr << "Server Error: init socketfd" << std::endl;
-		exit(1); 
+		g_shouldExit = 1;
+		return;
 	}
 
 	// a revoir
@@ -219,7 +221,8 @@ void	Server::setupSocket()
 	if (setsockopt(_serverFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
 	{
 		std::cerr << "Server Error: setsockopt" << std::endl;
-		exit(1);
+		g_shouldExit = 1;
+		return ;
 	}
 
 	sockaddr_in addr;
@@ -231,14 +234,15 @@ void	Server::setupSocket()
 	if ( bind(_serverFd, (struct sockaddr *)&addr, sizeof(addr)) < 0)
 	{
 		std::cerr << "Server Error: bind" << std::endl;
-		perror("bind");
-		exit(1);
+		g_shouldExit = 1;
+		return ;
 	}
 
 	if (listen(_serverFd, 5) < 0)
 	{
 		std::cerr << "Server Error: listen" << std::endl;
-		exit(1);
+		g_shouldExit = 1;
+		return ;
 	}
 
 	std::cout << "Server run on port " << _port << std::endl;
