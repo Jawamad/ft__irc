@@ -22,23 +22,25 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	if (!clientToKickPtr)
 	{
-		std::cout << "Client " << clientToKick << " not found." << std::endl;
+		std::string err = "401 KICK :No such nick/channel\r\n";
+		send(client->getSocketFd(), err.c_str(), err.size(), 0);
 		return;
 	}
-	
 	if (channel)
 	{	
 		if (channel->isOperator(client->getSocketFd()))
-		{   
 			channel->clientGetsKickByOperator(client->getNickname(), *clientToKickPtr);
-		}
 		else
 		{
-			std::cout << "Permission denied: " << client->getNickname() << " is not operator." << std::endl;
+			std::string err = "482 KICK :You're not channel operator\r\n";
+			send(client->getSocketFd(), err.c_str(), err.size(), 0);
+			return;
 		}
 	}
 	else
 	{
-		std::cout << "Channel " << channelName << " not found." << std::endl;
+		std::string err = "403 KICK :No such channel\r\n";
+		send(client->getSocketFd(), err.c_str(), err.size(), 0);
+		return;	
 	}
 }

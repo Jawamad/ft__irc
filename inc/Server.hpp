@@ -34,6 +34,7 @@ class Server
 		void	addChannel(std::string chanName);
 		void	delChannel(std::string chanName);
 		void	delClient(int fd);
+		bool	hasChannel(std::string chanName);
 
 		//server setup
 		bool	start();

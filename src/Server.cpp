@@ -252,6 +252,14 @@ void	Server::processClientData(Client* client)
 	}
 }
 
+bool	Server::hasChannel(std::string chanName)
+{
+	std::map<std::string, Channel*>::iterator it = _channels.find(chanName);
+	if (it == _channels.end())
+		return false;
+	return true;
+}
+
 
 Client* Server::findClientByNickname(const std::string& nickname) 
 {
