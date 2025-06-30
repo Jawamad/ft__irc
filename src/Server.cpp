@@ -156,7 +156,8 @@ void	Server::run()
 		int activity = select(_maxFd + 1, &_readFds, NULL, NULL, NULL);
 		if (activity < 0)
 		{
-			std::cerr << "Server error: select" << std::endl;
+			if (!g_shouldExit)
+				std::cerr << "Server error: select" << std::endl;
 			continue;
 		}
 
