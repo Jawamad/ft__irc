@@ -14,6 +14,12 @@ void handleSignal(int signum)
 
 Server::Server(int port, const std::string &password): _serverFd(-1), _port(port), _password(password), _host("localhost"), _maxFd(0)
 {
+	// operator
+	_commands["KICK"] = new KickCommand();
+	_commands["INVITE"] = new InviteCommand();
+	_commands["TOPIC"] = new TopicCommand();
+	_commands["MODE"] = new ModeCommand();
+
 	_commands["NICK"] = new NickCommand();
 	_commands["JOIN"] = new JoinCommand();
 	_commands["PART"] = new PartCommand();
@@ -59,7 +65,6 @@ Server& Server::operator=(const Server &obj)
 	return *this;
 }
 
-// Getters
 int	Server::getServerFd() const
 {
 	return _serverFd;
@@ -288,6 +293,39 @@ void	Server::processClientData(Client* client)
 	}
 }
 
+bool	Server::hasChannel(std::string chanName)
+{
+	std::map<std::string, Channel*>::iterator it = _channels.find(chanName);
+	if (it == _channels.end())
+		return false;
+	return true;
+}
+
+
+Client* Server::findClientByNickname(const std::string& nickname) 
+{
+    for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+        Client* client = it->second;
+		std::cout << client->getNickname();
+        if (client->getNickname() == nickname) {
+            return client;
+        }
+    }
+    return NULL;
+}
+
+Client* Server::findClientByFd(int clientFd)
+{
+	  for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+        Client* client = it->second;
+		std::cout << client->getSocketFd();
+        if (client->getSocketFd() == clientFd) {
+            return client;
+        }
+    }
+    return NULL;
+}
+
 void Server::parseCommand(Client* client, const std::string &msg)
 {
 	std::istringstream	iss(msg);
@@ -305,8 +343,15 @@ void Server::parseCommand(Client* client, const std::string &msg)
 	if (it != _commands.end())
 		it->second->execute(*this, client, iss);
 	else
+<<<<<<< HEAD
 	{
 		std::string err = "421 " + command + " :Unknown command\r\n";
 		send(client->getSocketFd(), err.c_str(), err.size(), 0);
 	}
 }
+=======
+		send(client->getSocketFd(), ("421 " + command + " :Unknown command\r\n").c_str(), msg.size(), 0);
+}
+
+// mode operator 
+>>>>>>> operator

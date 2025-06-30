@@ -44,7 +44,13 @@ class Server
 		void	acceptNewClient();
 		void	handleClientMessage(int clientFd);
 		void	removeClient(int clientFd);
-	
+
+		// operator
+		Client* findClientByNickname(const std::string& nickname);
+		Client* findClientByFd(int clientFd);
+		// MODE
+		void invitationToAccess(int guestFd, int clientFd, const std::string &channelName);
+
 	private:
 		void	setupSocket();
 		void	updateFdSet();

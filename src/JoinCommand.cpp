@@ -4,7 +4,8 @@
 void JoinCommand::execute(Server &server, Client *client, std::istringstream &args)
 {
 	std::string channelName;
-	args >> channelName;
+	std::string channelPassword;
+	args >> channelName >> channelPassword;
 
 	if(channelName.empty())
 	{
@@ -17,10 +18,38 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 	
 	std::map<std::string, Channel*>& channels = server.getChannels();
 	if (channels.find(channelName) == channels.end())
+	{
 		channels[channelName] = new Channel(channelName);
+		channels[channelName]->addClient(client);
+		channels[channelName]->addOperator(client->getSocketFd());
+		std::cout << "New channel " << channelName << " created by " << client->getNickname() << std::endl;
+	}
+	else
+	{
+		Channel* channel = channels[channelName];
 
-	channels[channelName]->addClient(client);
-
+		// Vérifie si le canal est plein
+		if (channel->isLimitedNbUser() && channel->getClientCount() >= channel->getUserLimit()) {
+			std::cout << "Ce canal a atteint le nombre maximal de user" << std::endl;
+			return;
+		}
+		else if (!channel->isInviteOnly())
+			channel->addClient(client);
+		else if (channel->isInviteOnly())
+		{
+			std::cout << "join this channel is only on invitation " << std::endl;
+		}
+		// MODE k+ password required
+		else if (channel->isPasswordOnly())
+		{
+			if (channel->getChanPassword() == channelPassword)
+			{
+				channel->addClient(client);
+			}
+		} 
+	
+	}
+	
 	std::string joinMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " JOIN " + channelName + "\r\n";
 
 	server.getChan(channelName)->broadcast(joinMsg, -1);
