@@ -1,7 +1,7 @@
 #include "../inc/Channel.hpp"
 
 Channel::Channel() : _inviteOnly(false) {}
-Channel::Channel(const std::string &name) : _name(name), _inviteOnly(false), _topicOperatorOnly(false) {}
+Channel::Channel(const std::string &name) : _name(name), _inviteOnly(false), _topicOperatorOnly(false), _accessPwdOnly(false), _hasUserLimit(false) {}
 Channel::Channel(const Channel& obj)
 {
 	*this = obj;

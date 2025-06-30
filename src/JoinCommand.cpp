@@ -16,6 +16,7 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 	if (channelName[0] != '#')
 		channelName = '#' + channelName;
 	
+	std::string joinMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " JOIN " + channelName + "\r\n";
 	std::map<std::string, Channel*>& channels = server.getChannels();
 	if (channels.find(channelName) == channels.end())
 	{
@@ -34,7 +35,10 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 			return;
 		}
 		else if (!channel->isInviteOnly())
+		{
 			channel->addClient(client);
+			server.getChan(channelName)->broadcast(joinMsg, -1);
+		}
 		else if (channel->isInviteOnly())
 		{
 			std::cout << "join this channel is only on invitation " << std::endl;
@@ -45,14 +49,11 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 			if (channel->getChanPassword() == channelPassword)
 			{
 				channel->addClient(client);
+				server.getChan(channelName)->broadcast(joinMsg, -1);
 			}
+			//message erreur
 		} 
-	
 	}
-	
-	std::string joinMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " JOIN " + channelName + "\r\n";
-
-	server.getChan(channelName)->broadcast(joinMsg, -1);
 
 	std::string namesList;
 	std::map<int, Client*> members = server.getChan(channelName)->getClients();

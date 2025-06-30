@@ -37,7 +37,9 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 	std::string modeletter;
 	std::string modeValue;
 	args >> channelName >> modeletter >> modeValue;
-
+	
+	if (channelName[0] != '#')
+		channelName = '#' + channelName;
 	if (!server.hasChannel(channelName))
 	{
 		std::string err = "403 MODE :No such channel :/\r\n";
@@ -52,11 +54,10 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		return;
 	}
 
-	if (channelName[0] != '#')
-		channelName = '#' + channelName;
 
 	Channel* channel = server.getChan(channelName);
 
+	std::cout << modeletter << std::endl;
 	if (modeletter == "+i")
 	{
 		channel->setInviteOnly(true);

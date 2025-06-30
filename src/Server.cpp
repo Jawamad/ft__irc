@@ -19,7 +19,6 @@ Server::Server(int port, const std::string &password): _serverFd(-1), _port(port
 	_commands["INVITE"] = new InviteCommand();
 	_commands["TOPIC"] = new TopicCommand();
 	_commands["MODE"] = new ModeCommand();
-
 	_commands["NICK"] = new NickCommand();
 	_commands["JOIN"] = new JoinCommand();
 	_commands["PART"] = new PartCommand();
@@ -135,14 +134,6 @@ Channel* Server::getChan(std::string chanName)
 	if (it == _channels.end())
 		return NULL;
 	return it->second;
-}
-
-bool	Server::hasChannel(std::string chanName)
-{
-	std::map<std::string, Channel*>::iterator it = _channels.find(chanName);
-	if (it == _channels.end())
-		return false;
-	return true;
 }
 
 //server setup
@@ -343,15 +334,8 @@ void Server::parseCommand(Client* client, const std::string &msg)
 	if (it != _commands.end())
 		it->second->execute(*this, client, iss);
 	else
-<<<<<<< HEAD
 	{
 		std::string err = "421 " + command + " :Unknown command\r\n";
 		send(client->getSocketFd(), err.c_str(), err.size(), 0);
 	}
 }
-=======
-		send(client->getSocketFd(), ("421 " + command + " :Unknown command\r\n").c_str(), msg.size(), 0);
-}
-
-// mode operator 
->>>>>>> operator
