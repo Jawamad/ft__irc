@@ -12,7 +12,7 @@ OBJS = $(SRCS:$(DIR_SRC)%.cpp=$(DIR_OBJ)%.o)
 all: $(NAME)
 
 $(DIR_OBJ)%.o: $(DIR_SRC)%.cpp
-	@mkdir -p $(dir $@)
+	@if not exist "$(dir $@)" mkdir "$(dir $@)"
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 $(NAME): $(OBJS)
