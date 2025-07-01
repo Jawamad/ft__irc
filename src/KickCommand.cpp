@@ -9,9 +9,7 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	if(channelName.empty())
 	{
-		std::string err = ":" + serverName + " 461 " + client->getNickname() + " KICK : Not enough parameters\r\n";
-		send(client->getSocketFd(), err.c_str(), err.size(), 0);
-		return;
+		server.errorMessage(client, 461, "KICK :Not enough parameters");
 	}
 
 	if (channelName[0] != '#')
@@ -22,9 +20,7 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	if (!clientToKickPtr)
 	{
-		std::string err = ":" + serverName + " 401 " + client->getNickname() + " KICK : No such nick/channel\r\n";
-		send(client->getSocketFd(), err.c_str(), err.size(), 0);
-		return;
+		server.errorMessage(client, 401, "KICK :No such nick/channel");
 	}
 	if (channel)
 	{	
@@ -32,14 +28,15 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 			channel->clientGetsKickByOperator(client->getNickname(), *clientToKickPtr);
 		else
 		{
-			std::string err = ":" + serverName + " 482 " + client->getNickname() + " KICK : You're not channel operator\r\n";
+			
+			std::string err = ":" + serverName + " 482 " + client->getNickname() + " KICK :You're not channel operator\r\n";
 			send(client->getSocketFd(), err.c_str(), err.size(), 0);
 			return;
 		}
 	}
 	else
 	{
-		std::string err = ":" + serverName + " 442 " + client->getNickname() + " KICK : You are not on that channel\r\n";
+		std::string err = ":" + serverName + " 442 " + client->getNickname() + " KICK :You are not on that channel\r\n";
 		send(client->getSocketFd(), err.c_str(), err.size(), 0);
 		return;	
 	}

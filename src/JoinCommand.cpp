@@ -9,9 +9,7 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	if(channelName.empty())
 	{
-		std::string err = "461 JOIN :Not enough parameters\r\n";
-		send(client->getSocketFd(), err.c_str(), err.size(), 0);
-		return;
+		server.errorMessage(client, 461, "JOIN : Not enough parameters");
 	}
 	if (channelName[0] != '#')
 		channelName = '#' + channelName;
@@ -31,8 +29,7 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 		// Vérifie si le canal est plein
 		if (channel->isLimitedNbUser() && channel->getClientCount() >= channel->getUserLimit()) {
-			std::cout << "Ce canal a atteint le nombre maximal de user" << std::endl;
-			return;
+			server.errorMessage(client, 471, "JOIN :Cannot join channel (+l)");
 		}
 		else if (!channel->isInviteOnly())
 		{
@@ -41,7 +38,7 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 		}
 		else if (channel->isInviteOnly())
 		{
-			std::cout << "join this channel is only on invitation " << std::endl;
+			server.errorMessage(client, 473, "JOIN :Cannot join channel (+i)");
 		}
 		// MODE k+ password required
 		else if (channel->isPasswordOnly())
@@ -51,7 +48,8 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 				channel->addClient(client);
 				server.getChan(channelName)->broadcast(joinMsg, -1);
 			}
-			//message erreur
+			else
+				server.errorMessage(client, 475, "JOIN :Cannot join channel (+k)");
 		} 
 	}
 

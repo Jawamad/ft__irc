@@ -7,9 +7,6 @@ void TopicCommand::execute(Server &server, Client *client, std::istringstream &a
 	std::string newTopic;
 	args >> channelName >> newTopic;
 
-	(void)server;
-	(void)client;
-
 	if (channelName[0] != '#')
 	 	channelName = '#' + channelName;
 	Channel* channel = server.getChan(channelName); 
@@ -29,9 +26,7 @@ void TopicCommand::execute(Server &server, Client *client, std::istringstream &a
 				std::cout << "Topic of channel updated to (by operator) : " << channel->getTopic() << std::endl;
 			}
 			else
-			{
-				std::cout << "the topic can be modified only by an operator " << std::endl;
-			}
+				server.errorMessage(client, 482, "INVITE :You're not channel operator");
 		}
 	} 
 	else 

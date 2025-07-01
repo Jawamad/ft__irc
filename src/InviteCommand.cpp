@@ -9,9 +9,7 @@ void InviteCommand::execute(Server &server, Client *client, std::istringstream &
 
 	if(channelName.empty())
 	{
-		std::string err = "461 KICK :Not enough parameters\r\n";
-		send(client->getSocketFd(), err.c_str(), err.size(), 0);
-		return;
+		server.errorMessage(client, 461, "INVITE :Not enough parameters");
 	}
 
 	if (channelName[0] != '#')
@@ -22,15 +20,11 @@ void InviteCommand::execute(Server &server, Client *client, std::istringstream &
 
 	if (!clientToInvitePtr)
 	{
-		std::cout << "Client " << clientToInvite << " not found." << std::endl;
-		return;
+		server.errorMessage(client, 401, "INVITE :No such nick/channel");
 	}
 	
 	if (channel)
-	{
-		std::cout << "FIND " << channelName << " ! " << std::endl;
-		std::cout << "operator :" << channel->isOperator(client->getSocketFd()) << std::endl;
-		
+	{	
 		if (channel->isOperator(client->getSocketFd()))
 		{   
 			channel->clientGetsInviteByOperator(client->getNickname(), *clientToInvitePtr);
@@ -39,11 +33,11 @@ void InviteCommand::execute(Server &server, Client *client, std::istringstream &
 		}
 		else
 		{
-			std::cout << "Permission denied: " << client->getNickname() << " is not operator." << std::endl;
+			server.errorMessage(client, 482, "INVITE :You're not channel operator");
 		}
 	}
 	else
 	{
-		std::cout << "Channel " << channelName << " not found." << std::endl;
+		server.errorMessage(client, 403, "INVITE :No such channel");
 	}
 }

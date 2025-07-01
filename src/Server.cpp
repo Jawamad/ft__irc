@@ -339,3 +339,10 @@ void Server::parseCommand(Client* client, const std::string &msg)
 		send(client->getSocketFd(), err.c_str(), err.size(), 0);
 	}
 }
+
+void Server::errorMessage(Client* client, int errorCode,  const std::string& errorMsg)
+{
+    std::string err = ":" + PIRC + " " + std::to_string(errorCode) + " " + client->getNickname() + " :" + errorMsg + "\r\n";
+    send(client->getSocketFd(), err.c_str(), err.size(), 0);
+	return;
+}

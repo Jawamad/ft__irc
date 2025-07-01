@@ -38,7 +38,7 @@ class Server
 		bool	hasChannel(std::string chanName);
 		Client*	getClientByNick(std::string nickname);
 
-		//server setup
+		// server setup
 		bool	start();
 		void	run();
 		void	acceptNewClient();
@@ -50,6 +50,9 @@ class Server
 		Client* findClientByFd(int clientFd);
 		// MODE
 		void invitationToAccess(int guestFd, int clientFd, const std::string &channelName);
+
+		// utils
+		void errorMessage(Client* client, int errorCode,  const std::string& errorMsg);
 
 	private:
 		void	setupSocket();

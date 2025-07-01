@@ -12,8 +12,9 @@ OBJS = $(SRCS:$(DIR_SRC)%.cpp=$(DIR_OBJ)%.o)
 all: $(NAME)
 
 $(DIR_OBJ)%.o: $(DIR_SRC)%.cpp
-	@if not exist "$(dir $@)" mkdir "$(dir $@)"
+	@if [ ! -d "$(dir $@)" ]; then mkdir -p "$(dir $@)"; fi
 	@$(CC) $(CFLAGS) -c $< -o $@
+
 
 $(NAME): $(OBJS)
 	@echo "$(BOLD)$(BLUE)------------------------------------------$(RESET)"
