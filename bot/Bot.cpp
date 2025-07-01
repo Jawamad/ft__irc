@@ -19,6 +19,7 @@ Bot::Bot(bool *sig, std::string addr, int port, std::string pass, std::string ni
 	std::cout << "Connecting to " << addr << ":" << port << std::endl;
 	if (connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0)
 		throw std::runtime_error("connect() failed");
+	freeaddrinfo(servinfo);
 	int flags = fcntl(sock, F_GETFL, 0);
 	fcntl(sock, F_SETFL, flags | O_NONBLOCK);
 
@@ -40,6 +41,8 @@ void	Bot::online()
 {
 	if (!pass.empty())
 		send_command("PASS " + pass);
+	messages.insert(messages.begin(), "\0");
+	std::memset(buf, 0, sizeof(buf));
 	while (!connected)
 	{
 		try
@@ -47,7 +50,8 @@ void	Bot::online()
 			send_command("NICK " + nick);
 			send_command("USER " + nick + " " + nick + " " + addr + " :" + nick);
 			serv_response();
-			std::string msg = messages[0];
+			
+			std::string msg = messages.front();
 			messages.erase(messages.begin());
 			if (msg.find("433") != std::string::npos)
 				throw std::runtime_error("Nickname already in use");
@@ -63,15 +67,26 @@ void	Bot::online()
 	{
 		if (messages.empty())
 			serv_response();
-		std::string msg = messages[0];
+		std::string msg = messages.front();
 		messages.erase(messages.begin());
-		std::cout << messages[0] << std::endl;
 		if (msg.find("001 " + nick) != std::string::npos)
 			break;
 	}
-	std::cout << "entering join" << std::endl;
-	send_command("JOIN #salon");
-	std::cout << "exiting join" << std::endl;
+	send_command("JOIN " + nick);
+	std::cout << "1" << std::endl;
+	std::cout << "2" << std::endl;
+	while (!*sig)
+	{
+		if (messages.empty())
+			serv_response();
+		std::string msg = messages.front();
+		messages.erase(messages.begin());
+		if ((msg.find("TIME") != std::string::npos) && (last_msg != msg))
+		{
+			print_current_time();
+			last_msg = msg;
+		}
+	}
 }
 
 void	Bot::send_command(std::string command)
@@ -83,19 +98,18 @@ void	Bot::send_command(std::string command)
 
 void	Bot::serv_response()
 {
-	char buf[4096 + 1];
-
 	pseudo_sleep(1);
-	std::cout << "allo" << std::endl;
 	ssize_t len = recv(sock, &buf, 4096, 0);
-	std::cout << "allo" << std::endl;
-	/* if (len < 0)
-		throw std::runtime_error("recv() failed"); */
+/* 	if (len < 0)
+	{
+		if (errno == EAGAIN || errno == EWOULDBLOCK)
+			return;
+		throw std::runtime_error("recv() failed");
+	} */
 	if (len == 0)
 		throw std::runtime_error("Connection closed");
 	buf[len] = '\0';
 	receive += buf;
-	std::cout << receive << std::endl;
 	while (receive.find("\r\n") != std::string::npos)
 	{
 		std::string msg = receive.substr(0, receive.find("\r\n"));
@@ -109,4 +123,16 @@ void	Bot::pseudo_sleep(unsigned int seconds)
 	std::clock_t start = std::clock();
 	while ((std::clock() - start) / CLOCKS_PER_SEC < seconds)
 		;
+}
+
+void	Bot::print_current_time()
+{
+	std::time_t now = std::time(NULL);
+	std::tm* local = std::localtime(&now);
+
+	char buffer[9];
+	std::strftime(buffer, sizeof(buffer), "%H:%M:%S", local);
+
+	std::cout << "Il est " << buffer << std::endl;
+	send_command("PRIVMSG #" + nick + " Il est " + buffer + ".");
 }
