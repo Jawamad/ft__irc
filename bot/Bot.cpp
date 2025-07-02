@@ -14,6 +14,7 @@ Bot::Bot(bool *sig, std::string addr, int port, std::string pass, std::string ni
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	rv = getaddrinfo( addr.c_str() , 0 , &hints , &servinfo);
+	(void) rv;
 
 	serv_addr.sin_addr = ((struct sockaddr_in *) servinfo->ai_addr)->sin_addr;
 	std::cout << "Connecting to " << addr << ":" << port << std::endl;
@@ -37,12 +38,21 @@ void	Bot::talk(std::string message)
 	std::cout << message << std::endl;
 }
 
+static std::string extractMessageContent(const std::string& line)
+{
+	size_t pos = line.find(" :");
+	if (pos == std::string::npos)
+		return "";
+	return line.substr(pos + 2);
+}
+
 void	Bot::online()
 {
 	if (!pass.empty())
 		send_command("PASS " + pass);
 	messages.insert(messages.begin(), "\0");
 	std::memset(buf, 0, sizeof(buf));
+	connected = false;
 	while (!connected)
 	{
 		try
@@ -79,13 +89,24 @@ void	Bot::online()
 	{
 		if (messages.empty())
 			serv_response();
-		std::string msg = messages.front();
+		std::string msg = extractMessageContent(messages.front());
 		messages.erase(messages.begin());
 		if ((msg.find("TIME") != std::string::npos) && (last_msg != msg))
-		{
 			print_current_time();
-			last_msg = msg;
+		if (last_msg != msg)
+			containsBannedWord(msg, "banlist.txt");
+		if ((msg.find("ABANWORD") != std::string::npos) && (last_msg != msg))
+		{
+			std::string toBan = msg.substr(std::string("ABANWORD").length());
+			addBannedWord(toBan, "banlist.txt");
 		}
+		else if ((msg.find("RBANWORD") != std::string::npos) && (last_msg != msg))
+		{
+			std::string toBan = msg.substr(std::string("RBANWORD").length());
+			removeBannedWord(messages.front(), "banlist.txt");
+		}
+		last_msg = msg;
+
 	}
 }
 
@@ -100,17 +121,11 @@ void	Bot::serv_response()
 {
 	pseudo_sleep(1);
 	ssize_t len = recv(sock, &buf, 4096, 0);
-/* 	if (len < 0)
-	{
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
-			return;
-		throw std::runtime_error("recv() failed");
-	} */
 	if (len == 0)
 		throw std::runtime_error("Connection closed");
 	buf[len] = '\0';
 	receive += buf;
-	while (receive.find("\r\n") != std::string::npos)
+	if (receive.find("\r\n") != std::string::npos)
 	{
 		std::string msg = receive.substr(0, receive.find("\r\n"));
 		receive.erase(0, receive.find("\r\n") + 2);
@@ -135,4 +150,111 @@ void	Bot::print_current_time()
 
 	std::cout << "Il est " << buffer << std::endl;
 	send_command("PRIVMSG #" + nick + " Il est " + buffer + ".");
+}
+
+
+
+static std::string toLower(const std::string& str)
+{
+	std::string result = str;
+	for (size_t i = 0; i < result.length(); ++i)
+		result[i] = std::tolower(result[i]);
+	return result;
+}
+
+static std::set<std::string> loadBanWordsFromFile(const std::string& filename)
+{
+	std::set<std::string> result;
+	std::ifstream infile(filename.c_str());
+	std::string line;
+
+	if (!infile)
+	{
+		std::cerr << "[ERROR] Could not open banlist file: " << filename << std::endl;
+		return result;
+	}
+
+	while (std::getline(infile, line))
+	{
+		if (!line.empty())
+			result.insert(toLower(line));
+	}
+	infile.close();
+	return result;
+}
+
+bool Bot::containsBannedWord(const std::string& message, const std::string& filename)
+{
+	std::set<std::string> banned = loadBanWordsFromFile(filename);
+	std::istringstream iss(message);
+	std::string word;
+
+	while (iss >> word)
+	{
+		if (banned.find(toLower(word)) != banned.end())
+		{
+			send_command("PRIVMSG #" + nick + " WARNING ! BAD LANGUAGE DETECTED !");
+			std::cout << "WARNING ! BAD LANGUAGE DETECTED !" << std::endl;
+			return true;
+		}
+	}
+	return false;
+}
+
+void Bot::addBannedWord(const std::string& word, const std::string& filename)
+{
+	std::set<std::string> banned = loadBanWordsFromFile(filename);
+	std::string lower = toLower(word);
+
+	if (banned.find(lower) != banned.end())
+	{
+		send_command("PRIVMSG #" + nick + " Word already in banlist !");
+		std::cout << "Word already in banlist !" << std::endl;
+		return;
+	}
+	send_command("PRIVMSG #" + nick + " Word added in banlist !");
+	std::cout << "Word added in banlist !" << std::endl;
+
+	std::ofstream outfile(filename.c_str(), std::ios::app);
+	if (!outfile)
+	{
+		std::cerr << "[ERROR] Could not open file to append: " << filename << std::endl;
+		return;
+	}
+
+	outfile << lower << std::endl;
+	outfile.close();
+	return;
+}
+
+void Bot::removeBannedWord(const std::string& word, const std::string& filename)
+{
+	std::set<std::string> banned = loadBanWordsFromFile(filename);
+	std::string lower = toLower(word);
+
+	std::set<std::string>::iterator it = banned.find(lower);
+	if (it == banned.end())
+	{
+		send_command("PRIVMSG #" + nick + " Word absent from banlist !");
+		std::cout << "Word absent form banlist !" << std::endl;
+		return;
+	}
+	send_command("PRIVMSG #" + nick + " Word removed from banlist !");
+	std::cout << "Word removed from banlist !" << std::endl;
+
+
+	banned.erase(it);
+
+	std::ofstream outfile(filename.c_str());
+	if (!outfile)
+	{
+		std::cerr << "[ERROR] Could not open file to rewrite: " << filename << std::endl;
+		return;
+	}
+
+	for (std::set<std::string>::iterator it = banned.begin(); it != banned.end(); ++it)
+		outfile << *it << std::endl;
+
+	outfile.close();
+	return;
 }

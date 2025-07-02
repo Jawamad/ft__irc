@@ -20,6 +20,10 @@
 # include <algorithm>
 # include <stdio.h>
 # include <fcntl.h>
+# include <string>
+# include <set>
+# include <sstream>
+# include <cctype>
 
 class Bot
 {
@@ -49,6 +53,10 @@ class Bot
 		void	serv_response();
 		void	pseudo_sleep(unsigned int seconds);
 		void	print_current_time();
+
+		bool containsBannedWord(const std::string& message, const std::string& filename);
+		void addBannedWord(const std::string& word, const std::string& filename);
+		void removeBannedWord(const std::string& word, const std::string& filename);
 };
 
 #endif
