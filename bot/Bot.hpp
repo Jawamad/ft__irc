@@ -38,7 +38,6 @@ class Bot
 		bool connected;
 
 		std::string receive;
-		std::string last_msg;
 		std::vector<std::string> messages;
 
 		char buf[4096 + 1];
@@ -51,7 +50,6 @@ class Bot
 		void	send_command(std::string command);
 		void	talk(std::string message);
 		void	serv_response();
-		void	pseudo_sleep(unsigned int seconds);
 		void	print_current_time();
 
 		bool containsBannedWord(const std::string& message, const std::string& filename);

@@ -91,22 +91,21 @@ void	Bot::online()
 			serv_response();
 		std::string msg = extractMessageContent(messages.front());
 		messages.erase(messages.begin());
-		if ((msg.find("TIME") != std::string::npos) && (last_msg != msg))
+		if (msg.empty())
+			continue;
+		if (msg.find("TIME") != std::string::npos)
 			print_current_time();
-		if (last_msg != msg)
-			containsBannedWord(msg, "banlist.txt");
-		if ((msg.find("ABANWORD") != std::string::npos) && (last_msg != msg))
+		if (msg.find("RBANWORD") != std::string::npos)
 		{
-			std::string toBan = msg.substr(std::string("ABANWORD").length());
-			addBannedWord(toBan, "banlist.txt");
-		}
-		else if ((msg.find("RBANWORD") != std::string::npos) && (last_msg != msg))
-		{
-			std::string toBan = msg.substr(std::string("RBANWORD").length());
+			std::string toBan = msg.substr(std::string("RBANWORD ").length());
 			removeBannedWord(messages.front(), "banlist.txt");
 		}
-		last_msg = msg;
-
+		containsBannedWord(msg, "banlist.txt");
+		if (msg.find("ABANWORD") != std::string::npos)
+		{
+			std::string toBan = msg.substr(std::string("ABANWORD ").length());
+			addBannedWord(toBan, "banlist.txt");
+		}
 	}
 }
 
@@ -119,25 +118,32 @@ void	Bot::send_command(std::string command)
 
 void	Bot::serv_response()
 {
-	pseudo_sleep(1);
+	struct pollfd pfd;
+
+	pfd.fd = sock;
+	pfd.events = POLLIN;
+	pfd.revents = 0;
+	if (poll(&pfd, 1, -1) == -1)
+	{
+		if (pfd.revents & POLLERR)
+			throw std::runtime_error("poll() failed");
+		messages.clear();
+		messages.push_back("");
+		return;
+	}
 	ssize_t len = recv(sock, &buf, 4096, 0);
+	if (len < 0)
+		throw std::runtime_error("recv() failed");
 	if (len == 0)
 		throw std::runtime_error("Connection closed");
 	buf[len] = '\0';
 	receive += buf;
-	if (receive.find("\r\n") != std::string::npos)
+	while (receive.find("\r\n") != std::string::npos)
 	{
 		std::string msg = receive.substr(0, receive.find("\r\n"));
 		receive.erase(0, receive.find("\r\n") + 2);
 		messages.push_back(msg);
 	}
-}
-
-void	Bot::pseudo_sleep(unsigned int seconds)
-{
-	std::clock_t start = std::clock();
-	while ((std::clock() - start) / CLOCKS_PER_SEC < seconds)
-		;
 }
 
 void	Bot::print_current_time()
