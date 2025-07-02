@@ -344,5 +344,4 @@ void Server::errorMessage(Client* client, int errorCode,  const std::string& err
 {
     std::string err = ":" + PIRC + " " + std::to_string(errorCode) + " " + client->getNickname() + " :" + errorMsg + "\r\n";
     send(client->getSocketFd(), err.c_str(), err.size(), 0);
-	return;
 }

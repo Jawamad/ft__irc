@@ -48,7 +48,7 @@ class Channel
 		bool	isPasswordOnly() const;
 		void	setPasswordStatus(bool status);
 
-		void setLimitedNbUser(bool status);
+		void 	setLimitedNbUser(bool status);
 		bool	isLimitedNbUser() const;
 		void	setUserLimit(int limit);
 
@@ -68,6 +68,7 @@ class Channel
 		// operator
 		void clientGetsKickByOperator(const std::string &nickName, Client &client);
 		void clientGetsInviteByOperator(const std::string &nickName, Client &client); 
+		Client* searchMember(const std::string& nickname) const;
 };
 
 #endif

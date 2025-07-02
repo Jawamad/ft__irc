@@ -26,10 +26,28 @@ void InviteCommand::execute(Server &server, Client *client, std::istringstream &
 	if (channel)
 	{	
 		if (channel->isOperator(client->getSocketFd()))
-		{   
+		{
 			channel->clientGetsInviteByOperator(client->getNickname(), *clientToInvitePtr);
-			std::cout << clientToInvitePtr->getNickname() << " is the client to invite" << std::endl;
-			std::cout << client->getNickname() << " can INVITE " << clientToInvite << " ! " << std::endl;
+
+			
+			// RPL_INVITING au client qui invite -- success message ✅
+			std::string rplInviting = ":server 341 " 
+				+ client->getNickname() + " " 
+				+ clientToInvitePtr->getNickname() + " " 
+				+ channelName + "\r\n";
+			send(client->getSocketFd(), rplInviting.c_str(), rplInviting.size(), 0);
+
+			// Notification INVITE au client invité  -- success message ✅
+			std::string inviteMsg = ":" 
+				+ client->getNickname() + "!" 
+				+ client->getUsername() + "@" 
+				+ client->getIp()
+				+ " INVITE " 
+				+ clientToInvitePtr->getNickname() 
+				+ " :" 
+				+ channelName 
+				+ "\r\n";
+			send(clientToInvitePtr->getSocketFd(), inviteMsg.c_str(), inviteMsg.size(), 0);
 		}
 		else
 		{

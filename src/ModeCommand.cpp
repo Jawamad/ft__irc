@@ -43,7 +43,7 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		server.errorMessage(client, 403, "MODE :No such channel");
 
 	if(channelName.empty())
-		server.errorMessage(client, 461, "JOIN : Not enough parameters");
+		server.errorMessage(client, 461, "MODE :Not enough parameters");
 
 	Channel* channel = server.getChan(channelName);
 
@@ -51,12 +51,14 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 	{
 		channel->setInviteOnly(true);
 		std::cout << channel->isInviteOnly() << std::endl;
+		////////////////////////// notice 
 		// std::cout << "From now on," << channelName << " channel access is only on invitation" << std::endl;
 	}
 	else if (modeletter == "-i")
 	{
 		std::cout << channel->isInviteOnly() << std::endl;
 		channel->setInviteOnly(false);
+		////////////////////////// notice
 		// std::cout << "From now on," << channelName << " channel access is open even without invitation" << std::endl;
 	}
 	else if (modeletter == "+t")
@@ -92,6 +94,7 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		{
 			channel->setPasswordStatus(false);
 			std::cout << channel->isPasswordOnly() << std::endl;
+			////////////////////////// notice 
 			// std::cout << "From now on," << channelName << " channel access not need password" << std::endl;
 		}
 		else
@@ -109,6 +112,7 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 				server.errorMessage(client, 471, "LIMIT :Cannot join channel (+l)");
 			channel->setLimitedNbUser(true);
 			channel->setUserLimit(userLimit);
+			////////////////////////// notice
 			// std::cout << "User limit set to: " << userLimit << std::endl;
 			// std::cout << "From now on, " << channelName << " channel is limited to " << userLimit << " people" << std::endl;
 		}
@@ -142,10 +146,12 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 			server.errorMessage(client, 441, "MODE :They aren't on that channel");
 
 		if (modeletter == "+o") {
+			////////////////////////// notice 
 			// std::cout << modeValue << "est maintenant operateur ! \n";
 			channel->addOperator(target->getSocketFd());
 
 		} else {
+			////////////////////////// notice
 			// std::cout << modeValue << "n'est plus operateur ! \n";
 			channel->removeOperator(target->getSocketFd());
 		}
