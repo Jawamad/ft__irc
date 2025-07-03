@@ -97,16 +97,24 @@ void	Bot::online()
 			print_current_time();
 		if (msg.find("RBANWORD") != std::string::npos)
 		{
-			std::string toBan = msg.substr(std::string("RBANWORD ").length());
-			removeBannedWord(msg, "banlist.txt");
+			std::string toBan = msg.substr(std::string("RBANWORD").length());
+			while (!toBan.empty() && toBan[0] == ' ')
+				toBan.erase(0, 1);
+			if (toBan.empty())
+				continue;
+			removeBannedWord(toBan, "banlist.txt");
+		}
+		if (msg.find("ABANWORD") != std::string::npos)
+		{
+			std::string toBan = msg.substr(std::string("ABANWORD").length());
+			while (!toBan.empty() && toBan[0] == ' ')
+			toBan.erase(0, 1);
+			if (toBan.empty())
+			continue;
+			addBannedWord(toBan, "banlist.txt");
 		}
 		else
 			containsBannedWord(msg, "banlist.txt");
-		if (msg.find("ABANWORD") != std::string::npos)
-		{
-			std::string toBan = msg.substr(std::string("ABANWORD ").length());
-			addBannedWord(toBan, "banlist.txt");
-		}
 	}
 }
 
