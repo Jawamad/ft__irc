@@ -98,9 +98,10 @@ void	Bot::online()
 		if (msg.find("RBANWORD") != std::string::npos)
 		{
 			std::string toBan = msg.substr(std::string("RBANWORD ").length());
-			removeBannedWord(messages.front(), "banlist.txt");
+			removeBannedWord(msg, "banlist.txt");
 		}
-		containsBannedWord(msg, "banlist.txt");
+		else
+			containsBannedWord(msg, "banlist.txt");
 		if (msg.find("ABANWORD") != std::string::npos)
 		{
 			std::string toBan = msg.substr(std::string("ABANWORD ").length());
@@ -247,7 +248,6 @@ void Bot::removeBannedWord(const std::string& word, const std::string& filename)
 	}
 	send_command("PRIVMSG #" + nick + " Word removed from banlist !");
 	std::cout << "Word removed from banlist !" << std::endl;
-
 
 	banned.erase(it);
 
