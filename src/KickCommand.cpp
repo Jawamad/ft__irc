@@ -7,7 +7,7 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 	std::string clientToKick;
 	args >> channelName >> clientToKick;
 
-	if(channelName.empty() ||  clientToKick.empty())
+	if (channelName.empty() ||  clientToKick.empty())
 	{
 		server.errorMessage(client, 461, "KICK :Not enough parameters");
 		return;
@@ -29,7 +29,6 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 		server.errorMessage(client, 482, "KICK :You're not channel operator");
 		return;
 	}
-
 
 	if (!channel.searchMember(clientToKick))
 	{

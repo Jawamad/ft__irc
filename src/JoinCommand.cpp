@@ -33,6 +33,9 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 		}
 		else if (!channel->isInviteOnly())
 		{
+			// -- success message ✅
+			// std::cout <<  "<client> <channel> :No topic is set" << std::endl;
+			// stc::cout << " "<client> <channel> :<topic>" << std::endl;
 			channel->addClient(client);
 			server.getChan(channelName)->broadcast(joinMsg, -1);
 		}
@@ -47,6 +50,8 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 			if (channel->getChanPassword() == channelPassword)
 			{
 				// -- success message ✅
+				// std::cout <<  "<client> <channel> :No topic is set" << std::endl;
+				// stc::cout << " "<client> <channel> :<topic>" << std::endl;
 				channel->addClient(client);
 				server.getChan(channelName)->broadcast(joinMsg, -1);
 			}
