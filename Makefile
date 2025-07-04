@@ -16,23 +16,28 @@ $(DIR_OBJ)%.o: $(DIR_SRC)%.cpp
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 $(NAME): $(OBJS)
-	@echo "$(BOLD)$(BLUE)------------------------------------------$(RESET)"
-	@echo "$(BOLD)$(RED)🛠️ 🚧        Compilation started       🚧🛠️$(RESET)"
+	@echo "$(BOLD)$(BLUE)-----------------------------------$(RESET)"
+	@echo "$(BOLD)$(RED)🛠️ 🚧    Compilation started    🚧🛠️$(RESET)"
 	@echo "\n"
-	@echo "$(BOLD)$(ORANGE)⏳      Compilation in progress...      ⏳$(RESET)"
+	@echo "$(BOLD)$(ORANGE)⏳   Compilation in progress...  ⏳$(RESET)"
 	@echo "\n"
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
-	@echo "$(BOLD)$(GREEN)🎆           Compilation clear          🎆$(RESET)"
-	@echo "$(BOLD)$(BLUE)------------------------------------------$(RESET)"
+	@echo "$(BOLD)$(GREEN)🎆       Compilation clear       🎆$(RESET)"
+	@echo "$(BOLD)$(BLUE)-----------------------------------$(RESET)"
 
 clean:
 	@rm -rf $(DIR_OBJ)
-	@echo "$(BOLD)$(YELLOW)🧹🧼     Cleaned .o files     🧼🧹$(RESET)"
+	@$(MAKE) --no-print-directory -C bot clean
+	@echo "$(BOLD)$(YELLOW)🧹🧼      Cleaned .o files      🧼🧹$(RESET)"
 	@echo "\n"
 
 fclean: clean
 	@$(RM) $(NAME)
+	@$(MAKE) --no-print-directory -C bot fclean
 	@echo "$(BOLD)$(YELLOW)🧹🧼        Cleaned exec        🧼🧹$(RESET)"
 	@echo "\n"
 
-re: fclean all
+bonus:
+	@$(MAKE) --no-print-directory -C bot
+
+re: fclean all bonus

@@ -83,8 +83,8 @@ void	Bot::online()
 			break;
 	}
 	send_command("JOIN " + nick);
-	std::cout << "1" << std::endl;
-	std::cout << "2" << std::endl;
+	serv_response();
+	std::string msg = messages.front();
 	while (!*sig)
 	{
 		if (messages.empty())
@@ -102,7 +102,7 @@ void	Bot::online()
 				toBan.erase(0, 1);
 			if (toBan.empty())
 				continue;
-			removeBannedWord(toBan, "banlist.txt");
+			removeBannedWord(toBan, "bot/banlist.txt");
 		}
 		if (msg.find("ABANWORD") != std::string::npos)
 		{
@@ -111,10 +111,14 @@ void	Bot::online()
 			toBan.erase(0, 1);
 			if (toBan.empty())
 			continue;
-			addBannedWord(toBan, "banlist.txt");
+			addBannedWord(toBan, "bot/banlist.txt");
 		}
+		if (msg.find("BANLIST") != std::string::npos)
+        {
+            displayBanlist("bot/banlist.txt");
+        }
 		else
-			containsBannedWord(msg, "banlist.txt");
+			containsBannedWord(msg, "bot/banlist.txt");
 	}
 }
 
@@ -220,25 +224,30 @@ void Bot::addBannedWord(const std::string& word, const std::string& filename)
 {
 	std::set<std::string> banned = loadBanWordsFromFile(filename);
 	std::string lower = toLower(word);
+	std::istringstream iss(lower);
+	std::string words;
 
-	if (banned.find(lower) != banned.end())
+	while (iss >> words)
 	{
-		send_command("PRIVMSG #" + nick + " Word already in banlist !");
-		std::cout << "Word already in banlist !" << std::endl;
-		return;
-	}
-	send_command("PRIVMSG #" + nick + " Word added in banlist !");
-	std::cout << "Word added in banlist !" << std::endl;
+		if (banned.find(words) != banned.end())
+		{
+			send_command("PRIVMSG #" + nick + " Word already in banlist !");
+			std::cout << "Word already in banlist !" << std::endl;
+			return;
+		}
+		send_command("PRIVMSG #" + nick + " Word added in banlist !");
+		std::cout << "Word added in banlist !" << std::endl;
 
-	std::ofstream outfile(filename.c_str(), std::ios::app);
-	if (!outfile)
-	{
-		std::cerr << "[ERROR] Could not open file to append: " << filename << std::endl;
-		return;
-	}
+		std::ofstream outfile(filename.c_str(), std::ios::app);
+		if (!outfile)
+		{
+			std::cerr << "[ERROR] Could not open file to append: " << filename << std::endl;
+			return;
+		}
 
-	outfile << lower << std::endl;
-	outfile.close();
+		outfile << words << std::endl;
+		outfile.close();
+	}
 	return;
 }
 
@@ -246,29 +255,48 @@ void Bot::removeBannedWord(const std::string& word, const std::string& filename)
 {
 	std::set<std::string> banned = loadBanWordsFromFile(filename);
 	std::string lower = toLower(word);
+	std::istringstream iss(lower);
+	std::string words;
 
-	std::set<std::string>::iterator it = banned.find(lower);
-	if (it == banned.end())
+	while (iss >> words)
 	{
-		send_command("PRIVMSG #" + nick + " Word absent from banlist !");
-		std::cout << "Word absent form banlist !" << std::endl;
-		return;
+		std::set<std::string>::iterator it = banned.find(words);
+		if (it == banned.end())
+		{
+			send_command("PRIVMSG #" + nick + " Word absent from banlist !");
+			std::cout << "Word absent form banlist !" << std::endl;
+			return;
+		}
+		send_command("PRIVMSG #" + nick + " Word removed from banlist !");
+		std::cout << "Word removed from banlist !" << std::endl;
+
+		banned.erase(it);
+
+		std::ofstream outfile(filename.c_str());
+		if (!outfile)
+		{
+			std::cerr << "[ERROR] Could not open file to rewrite: " << filename << std::endl;
+			return;
+		}
+
+		for (std::set<std::string>::iterator it = banned.begin(); it != banned.end(); ++it)
+			outfile << *it << std::endl;
+
+		outfile.close();
 	}
-	send_command("PRIVMSG #" + nick + " Word removed from banlist !");
-	std::cout << "Word removed from banlist !" << std::endl;
-
-	banned.erase(it);
-
-	std::ofstream outfile(filename.c_str());
-	if (!outfile)
-	{
-		std::cerr << "[ERROR] Could not open file to rewrite: " << filename << std::endl;
-		return;
-	}
-
-	for (std::set<std::string>::iterator it = banned.begin(); it != banned.end(); ++it)
-		outfile << *it << std::endl;
-
-	outfile.close();
 	return;
+}
+
+void Bot::displayBanlist(const std::string& filename)
+{
+    std::set<std::string> banned = loadBanWordsFromFile(filename);
+    std::set<std::string>::iterator it = banned.begin();
+
+    while (it != banned.end())
+    {
+        std::cout << *it << std::endl;
+        send_command("PRIVMSG #" + nick + " " + *it);
+        it++;
+    }
+    return;
 }

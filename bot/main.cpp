@@ -11,11 +11,29 @@ int	main(int ac, char **av)
 {
 	try
 	{
-		if (ac == 5)
+		signal(SIGINT, handler);
+		if (ac == 2)
 		{
-			signal(SIGINT, handler);
+			Bot bot(&sig, av[1]);
+			bot.talk("Je suis VIVANT ! (ac = 2)\n");
+			bot.online();
+		}
+		else if (ac == 3)
+		{
+			Bot bot(&sig, av[1], atoi(av[2]));
+			bot.talk("Je suis VIVANT ! (ac = 3)\n");
+			bot.online();
+		}
+		else if (ac == 4)
+		{
+			Bot bot(&sig, av[1], atoi(av[2]), av[3]);
+			bot.talk("Je suis VIVANT ! (ac = 4)\n");
+			bot.online();
+		}
+		else if (ac == 5)
+		{
 			Bot bot(&sig, av[1], atoi(av[2]), av[3], av[4]);
-			bot.talk("Je suis VIVANT !\n");
+			bot.talk("Je suis VIVANT ! (ac = 5)\n");
 			bot.online();
 			return EXIT_SUCCESS;
 		}
