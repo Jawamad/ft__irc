@@ -37,11 +37,8 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		return;
 	}
 	
-	if (modeletter == "+i" || modeletter == "-i" 
-		|| modeletter == "+t" || modeletter == "-t"
-		|| modeletter == "+k" || modeletter == "-k"
-		|| modeletter == "+l" || modeletter == "-l"
-	)
+	if (modeletter != "+i" || modeletter != "-i" || modeletter != "+t" || modeletter != "-t"
+		|| modeletter != "+k" || modeletter != "-k" || modeletter != "+l" || modeletter != "-l")
 	{
 		server.errorMessage(client, 421, "MODE :Unknown command");
 		return;

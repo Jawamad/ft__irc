@@ -24,6 +24,19 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 		return;	
 	}
 
+	if (!channel->isOperator(client->getSocketFd()))
+	{
+		server.errorMessage(client, 482, "KICK :You're not channel operator");
+		return;
+	}
+
+
+	if (!channel.searchMember(clientToKick))
+	{
+		server.errorMessage(client, 441, "KICK :They aren't on that channel");
+		return;
+	}
+
 	if (!channel->searchMember(client->getNickname()))
 	{
 		server.errorMessage(client, 442, channelName + "KICK :You're not on that channel");
@@ -34,18 +47,6 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 	if (!clientToKickPtr)
 	{
 		server.errorMessage(client, 401, "KICK :No such nick/channel");
-		return;
-	}
-
-	if (!channel.searchMember(clientToKick))
-	{
-		server.errorMessage(client, 441, "KICK :They aren't on that channel");
-		return;
-	}
-
-	if (!channel->isOperator(client->getSocketFd()))
-	{
-		server.errorMessage(client, 482, "KICK :You're not channel operator");
 		return;
 	}
 

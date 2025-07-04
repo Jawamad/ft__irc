@@ -29,10 +29,9 @@ void InviteCommand::execute(Server &server, Client *client, std::istringstream &
 		return;
 	}
 
-	Client* clientToInvitePtr = server.findClientByNickname(clientToInvite);
-	if (!clientToInvitePtr)
+	if (!channel->isOperator(client->getSocketFd()))
 	{
-		server.errorMessage(client, 401, "INVITE :No such nick/channel");
+		server.errorMessage(client, 482, "INVITE :You're not channel operator");
 		return;
 	}
 
@@ -41,13 +40,14 @@ void InviteCommand::execute(Server &server, Client *client, std::istringstream &
 		server.errorMessage(client, 443, "INVITE :is already on channel");
 		return;
 	}
-	
-	if (!channel->isOperator(client->getSocketFd()))
+
+	Client* clientToInvitePtr = server.findClientByNickname(clientToInvite);
+	if (!clientToInvitePtr)
 	{
-		server.errorMessage(client, 482, "INVITE :You're not channel operator");
+		server.errorMessage(client, 401, "INVITE :No such nick/channel");
 		return;
 	}
-	
+
 	channel->clientGetsInviteByOperator(client->getNickname(), *clientToInvitePtr);
 
 	server.sendNumericReply(client, 341, clientToInvitePtr->getNickname() + " " + channelName, "");
