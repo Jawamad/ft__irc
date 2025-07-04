@@ -41,7 +41,7 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 		}
 		else if (channel->isInviteOnly())
 		{
-			server.errorMessage(client, 473, "JOIN :Cannot join channel (+i)")
+			server.errorMessage(client, 473, "JOIN :Cannot join channel (+i)");
 			return;
 		}
 		// MODE k+ password required

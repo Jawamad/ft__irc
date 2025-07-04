@@ -177,7 +177,7 @@ void Channel::clientGetsInviteByOperator(const std::string &nickName, Client &cl
 Client* Channel::searchMember(const std::string& nickname) const
 {
     std::map<int, Client*>::const_iterator it;
-    for (it = this->clients.begin(); it != this->clients.end(); ++it)
+    for (it = this->_clients.begin(); it != this->_clients.end(); ++it)
     {
         if (it->second->getNickname() == nickname)
         {

@@ -35,7 +35,7 @@ void InviteCommand::execute(Server &server, Client *client, std::istringstream &
 		return;
 	}
 
-	if (channel.searchMember(clientToInvite))
+	if (channel->searchMember(clientToInvite))
 	{
 		server.errorMessage(client, 443, "INVITE :is already on channel");
 		return;
@@ -50,9 +50,11 @@ void InviteCommand::execute(Server &server, Client *client, std::istringstream &
 
 	channel->clientGetsInviteByOperator(client->getNickname(), *clientToInvitePtr);
 
-	server.sendNumericReply(client, 341, clientToInvitePtr->getNickname() + " " + channelName, "");
+	std::string msgSendNumber = clientToInvitePtr->getNickname() + " " + channelName;
+	server.sendNumericReply(client, 341, msgSendNumber, "");
 
-	sendCommandMessage(client, "INVITE", clientToInvitePtr->getNickname() , channelName)
+	server.sendCommandMessage(client, "INVITE", clientToInvitePtr->getNickname() , channelName);
 
+	std::string inviteMsg = "invite";
 	send(clientToInvitePtr->getSocketFd(), inviteMsg.c_str(), inviteMsg.size(), 0);
 }

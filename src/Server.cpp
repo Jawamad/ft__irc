@@ -1,5 +1,6 @@
 #include "../inc/Server.hpp"
 #include "../inc/interface.hpp"
+#include <sstream>
 
 volatile sig_atomic_t g_shouldExit = 0;
 
@@ -342,7 +343,9 @@ void Server::parseCommand(Client* client, const std::string &msg)
 
 void Server::errorMessage(Client* client, int errorCode,  const std::string& errorMsg)
 {
-    std::string err = ":" + PIRC + " " + std::to_string(errorCode) + " " + client->getNickname() + " :" + errorMsg + "\r\n";
+	std::ostringstream oss;
+	oss << errorCode;
+    std::string err = ": PIRC " + oss.str() + " " + client->getNickname() + " :" + errorMsg + "\r\n";
     send(client->getSocketFd(), err.c_str(), err.size(), 0);
 }
 
@@ -364,7 +367,9 @@ void Server::sendCommandMessage(Client* sender, const std::string& command, cons
 
 void Server::sendNumericReply(Client* target, int code, const std::string& params, const std::string& trailing)
 {
-    std::string msg = ":" + PIRC + " " + std::to_string(code) + " " + target->getNickname();
+	std::ostringstream oss;
+	oss << code;
+    std::string msg = ": PIRC" + oss.str() + " " + target->getNickname();
 
     if (!params.empty())
         msg += " " + params;

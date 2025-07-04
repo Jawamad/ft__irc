@@ -5,12 +5,12 @@
 void ModeCommand::execute(Server &server, Client *client, std::istringstream &args)
 {
 	std::string channelName;
-	std::string modeletter;
+	std::string modeLetter;
 	std::string modeValue;
 
-	args >> channelName >> modeletter >> modeValue;
+	args >> channelName >> modeLetter >> modeValue;
 
-	if(channelName.empty() || modeletter.empty())
+	if(channelName.empty() || modeLetter.empty())
 	{
 		server.errorMessage(client, 461, "MODE :Not enough parameters");
 		return;
@@ -25,20 +25,16 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		return;
 	}
 
+	Channel* channel = server.getChan(channelName); 
+
 	if (!channel->hasClient(client->getSocketFd()))
 	{
 		server.errorMessage(client, 442, "MODE :You're not on that channel");
 		return;
 	}
-
-	if (!server)
-	{
-		server.errorMessage(client, 402, "MODE :No such server");
-		return;
-	}
 	
-	if (modeletter != "+i" || modeletter != "-i" || modeletter != "+t" || modeletter != "-t"
-		|| modeletter != "+k" || modeletter != "-k" || modeletter != "+l" || modeletter != "-l")
+	if (modeLetter != "+i" || modeLetter != "-i" || modeLetter != "+t" || modeLetter != "-t"
+		|| modeLetter != "+k" || modeLetter != "-k" || modeLetter != "+l" || modeLetter != "-l")
 	{
 		server.errorMessage(client, 421, "MODE :Unknown command");
 		return;
@@ -50,34 +46,32 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		return;
 	}
 
-	Channel* channel = server.getChan(channelName);
-
 	std::string response = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " MODE " + channelName + " " + modeLetter;
 	if (!modeValue.empty())
 		response += " " + modeValue;
 	response += "\r\n";
 
-	if (modeletter == "+i")
+	if (modeLetter == "+i")
 	{
 		channel->setInviteOnly(true);
 		channel->broadcast(response, -1);
 	}
-	else if (modeletter == "-i")
+	else if (modeLetter == "-i")
 	{
 		channel->setInviteOnly(false);
 		channel->broadcast(response, -1);
 	}
-	else if (modeletter == "+t")
+	else if (modeLetter == "+t")
 	{
 		channel->setTopicStatus(true);
 		channel->broadcast(response, -1);
 	}
-	else if (modeletter == "-t")
+	else if (modeLetter == "-t")
 	{
 		channel->setTopicStatus(false);
 		channel->broadcast(response, -1);
 	}
-	else if (modeletter == "+k")
+	else if (modeLetter == "+k")
 	{
 		// if (modeValue.empty())
 		// {
@@ -88,13 +82,13 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		channel->setChanPassword(modeValue);
 		channel->broadcast(response, -1);
 	}
-	else if (modeletter == "-k")
+	else if (modeLetter == "-k")
 	{
 		channel->setPasswordStatus(false);
 		channel->setChanPassword("");
 		channel->broadcast(response, -1);
 	}
-	else if (modeletter == "+l")
+	else if (modeLetter == "+l")
 	{
 		// if (modeValue.empty())
 		// {
@@ -111,7 +105,7 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		channel->setUserLimit(userLimit);
 		channel->broadcast(response, -1);
 	} 
-	else if (modeletter == "-l")
+	else if (modeLetter == "-l")
 	{
 		channel->setLimitedNbUser(false);
 		channel->setUserLimit(0);
@@ -150,8 +144,6 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 	{
 		server.errorMessage(client, 472, modeLetter + "MODE :is unknown mode char to me");
 	}
-	
-
 }
 
 //RPL_CHANNELMODEIS(324)

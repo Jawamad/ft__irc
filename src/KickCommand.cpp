@@ -30,7 +30,7 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 		return;
 	}
 
-	if (!channel.searchMember(clientToKick))
+	if (!channel->searchMember(clientToKick))
 	{
 		server.errorMessage(client, 441, "KICK :They aren't on that channel");
 		return;
@@ -49,7 +49,8 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 		return;
 	}
 
-	server.sendCommandMessage(client, "KICK", channelName + " " + clientToKickPtr->getNickname());
+	std::string kickMsg =  channelName + " " + clientToKickPtr->getNickname();
+	server.sendCommandMessage(client, "KICK", kickMsg, "");
 
 	channel->clientGetsKickByOperator(client->getNickname(), *clientToKickPtr);
 			
