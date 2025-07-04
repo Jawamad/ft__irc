@@ -79,11 +79,11 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 	}
 	else if (modeletter == "+k")
 	{
-		if (modeValue.empty())
-		{
-			server.errorMessage(client, 461, "MODE :Not enough parameters");
-			return;
-		}
+		// if (modeValue.empty())
+		// {
+		// 	server.errorMessage(client, 461, "MODE :Not enough parameters");
+		// 	return;
+		// }
 		channel->setPasswordStatus(true);
 		channel->setChanPassword(modeValue);
 		channel->broadcast(response, -1);
@@ -96,11 +96,11 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 	}
 	else if (modeletter == "+l")
 	{
-		if (modeValue.empty())
-		{
-			server.errorMessage(client, 461, "MODE :Not enough parameters");
-			return;
-		}
+		// if (modeValue.empty())
+		// {
+		// 	server.errorMessage(client, 461, "MODE :Not enough parameters");
+		// 	return;
+		// }
 		int userLimit = std::atoi(modeValue.c_str());
 		if (userLimit <= 0)
 		{
@@ -120,11 +120,11 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 	}
 	else if (modeLetter == "+o" || modeLetter == "-o")
 	{
-		if (modeValue.empty())
-		{
-			server.errorMessage(client, 461, "MODE :Not enough parameters");
-			return;
-		}
+		// if (modeValue.empty())
+		// {
+		// 	server.errorMessage(client, 461, "MODE :Not enough parameters");
+		// 	return;
+		// }
 
 		Client* target = server.findClientByNickname(modeValue);
 		if (!target)
@@ -151,4 +151,10 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		server.errorMessage(client, 472, modeLetter + "MODE :is unknown mode char to me");
 	}
 	
+
 }
+
+//RPL_CHANNELMODEIS(324)
+//RPL_CREATIONTIME (329)
+// si user = âs de broadcast
+// si mode besoin de params mais y en a pas --> on ignore

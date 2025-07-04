@@ -49,7 +49,7 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 		return;
 	}
 
-	server.sendCommandMessage(client, "KICK", channelName + " " + clientToKickPtr->getNickname(),  "Kicked");
+	server.sendCommandMessage(client, "KICK", channelName + " " + clientToKickPtr->getNickname());
 
 	channel->clientGetsKickByOperator(client->getNickname(), *clientToKickPtr);
 			
