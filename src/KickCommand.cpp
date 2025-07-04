@@ -7,52 +7,51 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 	std::string clientToKick;
 	args >> channelName >> clientToKick;
 
-	if(channelName.empty())
+	if(channelName.empty() ||  clientToKick.empty())
 	{
 		server.errorMessage(client, 461, "KICK :Not enough parameters");
 		return;
 	}
+
 	if (channelName[0] != '#')
 		channelName = '#' + channelName;
 
 	Channel* channel = server.getChan(channelName); 
-	Client* clientToKickPtr = server.findClientByNickname(clientToKick);
 
+	if (!channel)
+	{
+		server.errorMessage(client, 403, "KICK :no such channel");
+		return;	
+	}
+
+	if (!channel->searchMember(client->getNickname()))
+	{
+		server.errorMessage(client, 442, channelName + "KICK :You're not on that channel");
+		return;
+	}
+
+	Client* clientToKickPtr = server.findClientByNickname(clientToKick);
 	if (!clientToKickPtr)
 	{
 		server.errorMessage(client, 401, "KICK :No such nick/channel");
 		return;
 	}
-	if (channel.searchMember(clientToKick))
-	{
-		// -- success message ✅
-		if (channel->isOperator(client->getSocketFd()))
-		{
-			std::string kickMsg = ":" 
-				+ client->getNickname() + "!" 
-				+ client->getUsername() + "@" 
-				+ client->getIp()
-				+ " KICK " 
-				+ channelName + " " 
-				+ clientToKickPtr->getNickname()
-				+ " :Kicked\r\n";
-			channel->clientGetsKickByOperator(client->getNickname(), *clientToKickPtr);
-			channel->broadcast(kickMsg, -1);
-		}
-		else
-		{
-			server.errorMessage(client, 482, "KICK :You're not channel operator");
-			return;
-		}
-	}
-	else
+
+	if (!channel.searchMember(clientToKick))
 	{
 		server.errorMessage(client, 441, "KICK :They aren't on that channel");
 		return;
 	}
-	else
+
+	if (!channel->isOperator(client->getSocketFd()))
 	{
-		server.errorMessage(client, 403, "KICK :no such channel");
-		return;	
+		server.errorMessage(client, 482, "KICK :You're not channel operator");
+		return;
 	}
+
+	server.sendCommandMessage(client, "KICK", channelName + " " + clientToKickPtr->getNickname(),  "Kicked");
+
+	channel->clientGetsKickByOperator(client->getNickname(), *clientToKickPtr);
+			
+	channel->broadcast(kickMsg, -1);
 }

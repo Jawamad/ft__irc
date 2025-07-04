@@ -53,6 +53,7 @@ class Server
 
 		// utils
 		void errorMessage(Client* client, int errorCode,  const std::string& errorMsg);
+		void sendCommandMessage(Client* sender, const std::string& command, const std::string& params, const std::string& trailing);
 
 	private:
 		void	setupSocket();

@@ -345,3 +345,34 @@ void Server::errorMessage(Client* client, int errorCode,  const std::string& err
     std::string err = ":" + PIRC + " " + std::to_string(errorCode) + " " + client->getNickname() + " :" + errorMsg + "\r\n";
     send(client->getSocketFd(), err.c_str(), err.size(), 0);
 }
+
+void Server::sendCommandMessage(Client* sender, const std::string& command, const std::string& params, const std::string& trailing)
+{
+    std::string msg = ":" 
+        + sender->getNickname() + "!"
+        + sender->getUsername() + "@"
+        + sender->getIp()
+        + " " + command + " " + params;
+    
+    if (!trailing.empty())
+        msg += " :" + trailing;
+
+    msg += "\r\n";
+
+    send(sender->getSocketFd(), msg.c_str(), msg.size(), 0);
+}
+
+void Server::sendNumericReply(Client* target, int code, const std::string& params, const std::string& trailing)
+{
+    std::string msg = ":" + PIRC + " " + std::to_string(code) + " " + target->getNickname();
+
+    if (!params.empty())
+        msg += " " + params;
+
+    if (!trailing.empty())
+        msg += " :" + trailing;
+
+    msg += "\r\n";
+
+    send(target->getSocketFd(), msg.c_str(), msg.size(), 0);
+}
