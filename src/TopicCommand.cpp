@@ -52,9 +52,9 @@ void TopicCommand::execute(Server &server, Client *client, std::istringstream &a
 	else 
 	{
 		if (channel->getTopic().empty())
-			sendCommandMessage(client, "TOPIC :No topic is set", "331")
+			server.sendCommandMessage(client, "TOPIC :No topic is set", "331", "");
 		else
-			sendCommandMessage(client, "TOPIC :" + channel->getTopic(), "332", );
+			server.sendCommandMessage(client, "TOPIC :" + channel->getTopic(), "332","");
 		return;
 	}
 }
