@@ -58,8 +58,3 @@ void TopicCommand::execute(Server &server, Client *client, std::istringstream &a
 		return;
 	}
 }
-
-
-
-
-

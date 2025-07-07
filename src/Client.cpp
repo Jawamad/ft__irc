@@ -1,4 +1,5 @@
 #include "../inc/Client.hpp"
+#include "../inc/Server.hpp"
 
 Client::Client(): _loggedIn(false), _hasPassedPassword(false), _hasUser(false), _hasNick(false)
 {
@@ -134,4 +135,18 @@ void	Client::setHasNick(bool value)
 bool	Client::hasNick() const
 {
 	return _hasNick;
+}
+
+void	Client::logRoutine(Server& server)
+{
+	if (hasUser() && hasNick() && hasPassedPassword())
+	{
+		setLoggedIn(true);
+		server.errorMessage(this, 001, ":Welcome to the Internet Relay Network PIRC " + _nickname + "!" + _username + "@" + _ip);
+		server.errorMessage(this, 002, ":Your host is "+ server.getHost() +", running version PIRC_1.0");
+		server.errorMessage(this, 003, ":" + server.getCreationTime());
+		server.errorMessage(this, 004, "PIRC PIRC_1.0 mtikl");
+		server.errorMessage(this, 005, "PREFIX=(o)@ CHANTYPES=# MODES=5 NICKLEN=30 :are supported by this server");
+		server.errorMessage(this, 422, ":MOTD File is missing");
+	}
 }
