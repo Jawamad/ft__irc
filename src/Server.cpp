@@ -156,6 +156,7 @@ bool	Server::start()
 	std::cout << "Server is closed !" << std::endl;
 	return true;
 }
+
 void	Server::run()
 {
 	std::signal(SIGINT, handleSignal);
@@ -166,7 +167,7 @@ void	Server::run()
 		if (activity < 0)
 		{
 			if (!g_shouldExit)
-				std::cerr << "Server error: select" << std::endl;
+				std::cerr << ":" << this->getName() << " :Server error: select" << std::endl;
 			continue;
 		}
 
@@ -195,7 +196,7 @@ void	Server::acceptNewClient()
 
 	if (clientFd < 0)
 	{
-		std::cerr << "Server Error: accept." << std::endl;
+		std::cerr << ":" << this->getName() << " :Server Error: accept." << std::endl;
 		return;
 	}
 
@@ -221,7 +222,7 @@ void	Server::setupSocket()
 	_serverFd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_serverFd < 0)
 	{
-		std::cerr << "Server Error: init socketfd" << std::endl;
+		std::cerr << ":" << this->getName() << " :Server Error: init socketfd" << std::endl;
 		g_shouldExit = 1;
 		return;
 	}
@@ -230,7 +231,7 @@ void	Server::setupSocket()
 	int opt = 1;
 	if (setsockopt(_serverFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
 	{
-		std::cerr << "Server Error: setsockopt" << std::endl;
+		std::cerr << ":" << this->getName() << " :Server Error: setsockopt" << std::endl;
 		g_shouldExit = 1;
 		return ;
 	}
@@ -243,14 +244,14 @@ void	Server::setupSocket()
 
 	if ( bind(_serverFd, (struct sockaddr *)&addr, sizeof(addr)) < 0)
 	{
-		std::cerr << "Server Error: bind" << std::endl;
+		std::cerr << ":" << this->getName() << " :Server Error: bind" << std::endl;
 		g_shouldExit = 1;
 		return ;
 	}
 
 	if (listen(_serverFd, 5) < 0)
 	{
-		std::cerr << "Server Error: listen" << std::endl;
+		std::cerr << ":" << this->getName() << " :Server Error: listen" << std::endl;
 		g_shouldExit = 1;
 		return ;
 	}
@@ -339,8 +340,7 @@ void Server::parseCommand(Client* client, const std::string &msg)
 
 	if (!client->isLoggedIn() && command != "NICK" && command != "USER" && command != "PASS" && command != "QUIT" && command != "CAP")
 	{
-		std::string err = "451 :You have not registered\r\n";
-		send(client->getSocketFd(), err.c_str(), err.size(), 0);
+		serverMessage(client, "451", "Server Error :You have not registered");
 		return ;
 	}
 
@@ -349,7 +349,7 @@ void Server::parseCommand(Client* client, const std::string &msg)
 		it->second->execute(*this, client, iss);
 	else
 	{
-		std::string err = "421 " + command + " :Unknown command\r\n";
+		std::string err = ":" + this->getName() + " 421 " + client->getNickname() + " " + command + " :Server Error :Unknown command\r\n";
 		send(client->getSocketFd(), err.c_str(), err.size(), 0);
 	}
 }
@@ -381,7 +381,7 @@ void Server::sendNumericReply(Client* target, int code, const std::string& param
 {
 	std::ostringstream oss;
 	oss << code;
-	std::string msg = ": PIRC" + oss.str() + " " + target->getNickname();
+	std::string msg = ":PIRC" + oss.str() + " " + target->getNickname();
 
 	if (!params.empty())
 		msg += " " + params;

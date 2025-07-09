@@ -17,6 +17,12 @@ class Server
 		int									_maxFd;
 		std::map<std::string, ICommand *>	_commands;
 		Server();
+
+		void	setupSocket();
+		void	updateFdSet();
+		void	processClientData(Client* client);
+		void	parseCommand(Client* client, const std::string &msg);
+
 	public:
 		Server(int port, const std::string &password);
 		Server(const Server &obj);
@@ -24,18 +30,18 @@ class Server
 		~Server();
 
 		// Getters
-		int		getServerFd() const;
-		const	std::string &getPassword() const;
-		const	std::string &getHost() const;
-		const	std::string &getCreationTime() const;
-		const	std::string &getName() const;
-		std::map<int, Client*> &getClients();
-		const	std::map<int, Client*> &getClients() const;
-		std::map<std::string, Channel*> &getChannels();
-		const	std::map<std::string, Channel*> &getChannels() const;
-		const	std::map<std::string, ICommand*> &getCommands() const;
-		Channel	*getChan(std::string chanName);
-		int		getPort();
+		int											getServerFd() const;
+		int											getPort();
+		const	std::string							&getPassword() const;
+		const	std::string							&getHost() const;
+		const	std::string							&getCreationTime() const;
+		const	std::string							&getName() const;
+		std::map<int, Client*>						&getClients();
+		const	std::map<int, Client*>				&getClients() const;
+		std::map<std::string, Channel*>				&getChannels();
+		const	std::map<std::string, Channel*>		&getChannels() const;
+		const	std::map<std::string, ICommand*>	&getCommands() const;
+		Channel										*getChan(std::string chanName);
 		
 		void	setPassword(const std::string &pass);
 		void	addChannel(std::string chanName);
@@ -52,21 +58,16 @@ class Server
 		void	removeClient(int clientFd);
 
 		// operator
-		Client* findClientByNickname(const std::string& nickname);
-		Client* findClientByFd(int clientFd);
+		Client*	findClientByNickname(const std::string& nickname);
+		Client*	findClientByFd(int clientFd);
+		
 		// MODE
-		void invitationToAccess(int guestFd, int clientFd, const std::string &channelName);
+		void	invitationToAccess(int guestFd, int clientFd, const std::string &channelName);
 
 		// utils
-		void serverMessage(Client* client, std::string errorCode,  const std::string& errorMsg);
-		void sendCommandMessage(Client* sender, const std::string& command, const std::string& params, const std::string& trailing);
-		void sendNumericReply(Client* target, int code, const std::string& params, const std::string& trailing);
-
-	private:
-		void	setupSocket();
-		void	updateFdSet();
-		void	processClientData(Client* client);
-		void	parseCommand(Client* client, const std::string &msg);
+		void	serverMessage(Client* client, std::string errorCode,  const std::string& errorMsg);
+		void	sendCommandMessage(Client* sender, const std::string& command, const std::string& params, const std::string& trailing);
+		void	sendNumericReply(Client* target, int code, const std::string& params, const std::string& trailing);
 };
 
 #endif

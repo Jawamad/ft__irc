@@ -60,12 +60,15 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 		} 
 	}
 
+
 	std::string namesList;
 	std::map<int, Client*> members = server.getChan(channelName)->getClients();
 	for (std::map<int, Client*>::iterator it = members.begin(); it != members.end(); ++it)
 	{
 		if (!it->second->getNickname().empty())
 		{
+			if (channels[channelName]->isOperator(it->second->getSocketFd()))
+				namesList += "@";
 			namesList += it->second->getNickname() + " ";
 		}
 	}
