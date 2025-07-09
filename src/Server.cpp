@@ -13,7 +13,7 @@ void handleSignal(int signum)
 	}
 }
 
-Server::Server(int port, const std::string &password): _serverFd(-1), _port(port), _password(password), _host("localhost"), _maxFd(0)
+Server::Server(int port, const std::string &password): _serverFd(-1), _port(port), _password(password), _host("localhost"), _name("PIRC"), _maxFd(0)
 {
 	// operator
 	_commands["KICK"] = new KickCommand();
@@ -79,6 +79,10 @@ int	Server::getServerFd() const
 const std::string& Server::getPassword() const
 {
 	return _password;
+}
+const std::string& Server::getName() const
+{
+	return _name;
 }
 std::map<int, Client*>& Server::getClients()
 {
@@ -354,7 +358,7 @@ void Server::errorMessage(Client* client, int errorCode,  const std::string& err
 {
 	std::ostringstream oss;
 	oss << errorCode;
-	std::string err = ": PIRC " + oss.str() + " " + client->getNickname() + " :" + errorMsg + "\r\n";
+	std::string err = ":PIRC " + oss.str() + " " + client->getNickname() + " :" + errorMsg + "\r\n";
 	send(client->getSocketFd(), err.c_str(), err.size(), 0);
 }
 
