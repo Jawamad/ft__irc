@@ -354,11 +354,10 @@ void Server::parseCommand(Client* client, const std::string &msg)
 	}
 }
 
-void Server::errorMessage(Client* client, int errorCode,  const std::string& errorMsg)
+void Server::serverMessage(Client* client, std::string errorCode,  const std::string& errorMsg)
 {
-	std::ostringstream oss;
-	oss << errorCode;
-	std::string err = ":PIRC " + oss.str() + " " + client->getNickname() + " :" + errorMsg + "\r\n";
+
+	std::string err = ":PIRC " + errorCode + " " + client->getNickname() + " :" + errorMsg + "\r\n";
 	send(client->getSocketFd(), err.c_str(), err.size(), 0);
 }
 

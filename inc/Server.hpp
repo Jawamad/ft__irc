@@ -58,7 +58,7 @@ class Server
 		void invitationToAccess(int guestFd, int clientFd, const std::string &channelName);
 
 		// utils
-		void errorMessage(Client* client, int errorCode,  const std::string& errorMsg);
+		void serverMessage(Client* client, std::string errorCode,  const std::string& errorMsg);
 		void sendCommandMessage(Client* sender, const std::string& command, const std::string& params, const std::string& trailing);
 		void sendNumericReply(Client* target, int code, const std::string& params, const std::string& trailing);
 

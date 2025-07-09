@@ -12,7 +12,7 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	if(channelName.empty() || modeLetter.empty())
 	{
-		server.errorMessage(client, 461, "MODE :Not enough parameters");
+		server.serverMessage(client, "461", "MODE :Not enough parameters");
 		return;
 	}
 	
@@ -21,7 +21,7 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	if (!server.hasChannel(channelName))
 	{
-		server.errorMessage(client, 403, "MODE :No such channel");
+		server.serverMessage(client, "403", "MODE :No such channel");
 		return;
 	}
 
@@ -29,20 +29,20 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	if (!channel->hasClient(client->getSocketFd()))
 	{
-		server.errorMessage(client, 442, "MODE :You're not on that channel");
+		server.serverMessage(client, "442", "MODE :You're not on that channel");
 		return;
 	}
 	
 	if (modeLetter != "+i" || modeLetter != "-i" || modeLetter != "+t" || modeLetter != "-t"
 		|| modeLetter != "+k" || modeLetter != "-k" || modeLetter != "+l" || modeLetter != "-l")
 	{
-		server.errorMessage(client, 421, "MODE :Unknown command");
+		server.serverMessage(client, "421", "MODE :Unknown command");
 		return;
 	}
 
 	if (!channel->isOperator(client->getSocketFd()))
 	{
-		server.errorMessage(client, 482, "MODE :You're not channel operator");
+		server.serverMessage(client, "482", "MODE :You're not channel operator");
 		return;
 	}
 
@@ -98,7 +98,7 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		int userLimit = std::atoi(modeValue.c_str());
 		if (userLimit <= 0)
 		{
-			server.errorMessage(client, 467, channelName + "MODE :Invalid limit mode parameter");
+			server.serverMessage(client, "467", channelName + "MODE :Invalid limit mode parameter");
 			return;
 		}
 		channel->setLimitedNbUser(true);
@@ -123,13 +123,13 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		Client* target = server.findClientByNickname(modeValue);
 		if (!target)
 		{
-			server.errorMessage(client, 401, modeValue + "MODE :No such nick");
+			server.serverMessage(client, "401", modeValue + "MODE :No such nick");
 			return;
 		}
 
 		if (!channel->hasClient(target->getSocketFd()))
 		{
-			server.errorMessage(client, 441, modeValue + " " + channelName + "MODE :They aren't on that channel");
+			server.serverMessage(client, "441", modeValue + " " + channelName + "MODE :They aren't on that channel");
 			return;
 		}
 
@@ -142,7 +142,7 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 	}
 	else
 	{
-		server.errorMessage(client, 472, modeLetter + "MODE :is unknown mode char to me");
+		server.serverMessage(client, "472", modeLetter + "MODE :is unknown mode char to me");
 	}
 }
 

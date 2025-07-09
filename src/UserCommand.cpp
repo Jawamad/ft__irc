@@ -10,14 +10,14 @@ void UserCommand::execute(Server &server, Client *client, std::istringstream &ar
 	if (username.empty() || realname.empty())
 	{
 		std::string err = "USER :Not enough parameters";
-		server.errorMessage(client, 461, err);
+		server.serverMessage(client, "461", err);
 		return;
 	}
 
 	if (client->hasUser())
 	{
 		std::string err = "USER :You may not reregister";
-		server.errorMessage(client, 462, err);
+		server.serverMessage(client, "462", err);
 		return;
 	}
 

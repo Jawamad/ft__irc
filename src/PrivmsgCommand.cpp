@@ -11,7 +11,7 @@ void PrivmsgCommand::execute(Server &server, Client *client, std::istringstream 
 
 	if (target.empty())
 	{
-		server.errorMessage(client, 411, "PRIVMSG :No recipient given (PRIVMSG)");
+		server.serverMessage(client, "411", "PRIVMSG :No recipient given (PRIVMSG)");
 		return;
 	}
 
@@ -29,7 +29,7 @@ void PrivmsgCommand::execute(Server &server, Client *client, std::istringstream 
 	}
 	if (message.empty())
 	{
-		server.errorMessage(client, 412, "PRIVMSG :No text to send");
+		server.serverMessage(client, "412", "PRIVMSG :No text to send");
 		return;
 	}
 	
