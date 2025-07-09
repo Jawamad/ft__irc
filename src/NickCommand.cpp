@@ -22,11 +22,5 @@ void NickCommand::execute(Server &server, Client *client, std::istringstream &ar
 	}
 	client->setNickname(nickname);
 	client->setHasNick(true);
-
-	if (client->hasUser() && client->hasNick() && client->hasPassedPassword())
-	{
-		client->setLoggedIn(true);
-		std::string welcome = ":server 001 " + client->getNickname() + " :Welcome to the IRC server \r\n";
-		send(client->getSocketFd(), welcome.c_str(), welcome.size(), 0);
-	}
+	client->logRoutine(server);
 }

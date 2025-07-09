@@ -9,6 +9,8 @@ class Server
 		int									_port;
 		std::string							_password;
 		std::string							_host;
+		std::string							_creationTime;
+		std::string							_name;
 		std::map<int, Client *>				_clients;
 		std::map<std::string, Channel *>	_channels;
 		fd_set								_readFds;
@@ -24,6 +26,9 @@ class Server
 		// Getters
 		int		getServerFd() const;
 		const	std::string &getPassword() const;
+		const	std::string &getHost() const;
+		const	std::string &getCreationTime() const;
+		const	std::string &getName() const;
 		std::map<int, Client*> &getClients();
 		const	std::map<int, Client*> &getClients() const;
 		std::map<std::string, Channel*> &getChannels();
@@ -31,6 +36,7 @@ class Server
 		const	std::map<std::string, ICommand*> &getCommands() const;
 		Channel	*getChan(std::string chanName);
 		int		getPort();
+		
 		void	setPassword(const std::string &pass);
 		void	addChannel(std::string chanName);
 		void	delChannel(std::string chanName);
@@ -52,7 +58,7 @@ class Server
 		void invitationToAccess(int guestFd, int clientFd, const std::string &channelName);
 
 		// utils
-		void errorMessage(Client* client, int errorCode,  const std::string& errorMsg);
+		void serverMessage(Client* client, std::string errorCode,  const std::string& errorMsg);
 		void sendCommandMessage(Client* sender, const std::string& command, const std::string& params, const std::string& trailing);
 		void sendNumericReply(Client* target, int code, const std::string& params, const std::string& trailing);
 

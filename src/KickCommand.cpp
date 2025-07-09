@@ -9,7 +9,7 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	if (channelName.empty() ||  clientToKick.empty())
 	{
-		server.errorMessage(client, 461, "KICK :Not enough parameters");
+		server.serverMessage(client, "461", "KICK :Not enough parameters");
 		return;
 	}
 
@@ -20,32 +20,32 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	if (!channel)
 	{
-		server.errorMessage(client, 403, "KICK :no such channel");
+		server.serverMessage(client, "403", "KICK :no such channel");
 		return;	
 	}
 
 	if (!channel->isOperator(client->getSocketFd()))
 	{
-		server.errorMessage(client, 482, "KICK :You're not channel operator");
+		server.serverMessage(client, "482", "KICK :You're not channel operator");
 		return;
 	}
 
 	if (!channel->searchMember(clientToKick))
 	{
-		server.errorMessage(client, 441, "KICK :They aren't on that channel");
+		server.serverMessage(client, "441", "KICK :They aren't on that channel");
 		return;
 	}
 
 	if (!channel->searchMember(client->getNickname()))
 	{
-		server.errorMessage(client, 442, channelName + "KICK :You're not on that channel");
+		server.serverMessage(client, "442", channelName + "KICK :You're not on that channel");
 		return;
 	}
 
 	Client* clientToKickPtr = server.findClientByNickname(clientToKick);
 	if (!clientToKickPtr)
 	{
-		server.errorMessage(client, 401, "KICK :No such nick/channel");
+		server.serverMessage(client, "401", "KICK :No such nick/channel");
 		return;
 	}
 

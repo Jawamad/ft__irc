@@ -18,4 +18,5 @@
 # include "Channel.hpp"
 # include "ICommand.hpp"
 # include <csignal>
+# include <ctime>
 #endif

@@ -11,6 +11,7 @@ class Channel
 	private:
 		std::string _name;
 		std::string _topic;
+		std::string _creationTime;
 		std::map<int, Client*> _clients;
 		std::set<int> _operators;
 		// MODE 
@@ -33,6 +34,7 @@ class Channel
 		const std::string&		getTopic() const;
 		const std::map<int, Client*>&	getClients()const;
 		int	getUserLimit() const;
+		const std::string&		getCreationTime() const;
 
 		//
 		void	setTopic(const std::string &topic);

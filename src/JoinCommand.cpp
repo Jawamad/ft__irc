@@ -9,7 +9,7 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	if(channelName.empty())
 	{
-		server.errorMessage(client, 461, "JOIN : Not enough parameters");
+		server.serverMessage(client, "461", "JOIN : Not enough parameters");
 	}
 	if (channelName[0] != '#')
 		channelName = '#' + channelName;
@@ -29,13 +29,13 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 		// Vérifie si le canal est plein
 		if (channel->isLimitedNbUser() && channel->getClientCount() >= channel->getUserLimit()) {
-			server.errorMessage(client, 471, "JOIN :Cannot join channel (+l)");
+			server.serverMessage(client, "471", "JOIN :Cannot join channel (+l)");
 			return;
 		}
 		
 		if (channel->isInviteOnly())
 		{
-			server.errorMessage(client, 473, "JOIN :Cannot join channel (+i)");
+			server.serverMessage(client, "473", "JOIN :Cannot join channel (+i)");
 			return;
 		}
 		// MODE k+ password required
@@ -43,7 +43,7 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 		{
 			if (channel->getChanPassword() != channelPassword)
 			{
-				server.errorMessage(client, 475, "JOIN :Cannot join channel (+k)");
+				server.errorMessage(client, "475", "JOIN :Cannot join channel (+k)");
 				return;
 			}
 		} 

@@ -13,7 +13,7 @@ void handleSignal(int signum)
 	}
 }
 
-Server::Server(int port, const std::string &password): _serverFd(-1), _port(port), _password(password), _host("localhost"), _maxFd(0)
+Server::Server(int port, const std::string &password): _serverFd(-1), _port(port), _password(password), _host("localhost"), _name("PIRC"), _maxFd(0)
 {
 	// operator
 	_commands["KICK"] = new KickCommand();
@@ -31,8 +31,13 @@ Server::Server(int port, const std::string &password): _serverFd(-1), _port(port
 	_commands["CAP"] = new CapCommand();
 	_commands["WHO"] = new WhoCommand();
 	_commands["LIST"] = new ListCommand();
+	time_t now = time(0);
+	char buf[128];
+	strftime(buf, sizeof(buf), "This server was created %a %b %d %Y at %H:%M:%S UTC", gmtime(&now));
+	_creationTime = buf;
 	setupSocket();
 }
+
 Server::~Server()
 {
 	for (std::map<std::string, ICommand*>::iterator it = _commands.begin(); it != _commands.end(); ++it)
@@ -46,7 +51,9 @@ Server::~Server()
 		delete it->second;
 		close(it->first);
 	}
+	_clients.clear();
 }
+
 Server::Server(const Server &obj)
 {
 	*this = obj;
@@ -72,6 +79,10 @@ int	Server::getServerFd() const
 const std::string& Server::getPassword() const
 {
 	return _password;
+}
+const std::string& Server::getName() const
+{
+	return _name;
 }
 std::map<int, Client*>& Server::getClients()
 {
@@ -200,6 +211,8 @@ void	Server::handleClientMessage(int clientFd)
 }
 void	Server::removeClient(int clientFd)
 {
+	std::map<int, Client*>::iterator it = _clients.find(clientFd);
+	delete it->second;
 	close(clientFd);
 	_clients.erase(clientFd);
 }
@@ -296,26 +309,26 @@ bool	Server::hasChannel(std::string chanName)
 
 Client* Server::findClientByNickname(const std::string& nickname) 
 {
-    for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-        Client* client = it->second;
+	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		Client* client = it->second;
 		std::cout << client->getNickname();
-        if (client->getNickname() == nickname) {
-            return client;
-        }
-    }
-    return NULL;
+		if (client->getNickname() == nickname) {
+			return client;
+		}
+	}
+	return NULL;
 }
 
 Client* Server::findClientByFd(int clientFd)
 {
 	  for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-        Client* client = it->second;
+		Client* client = it->second;
 		std::cout << client->getSocketFd();
-        if (client->getSocketFd() == clientFd) {
-            return client;
-        }
-    }
-    return NULL;
+		if (client->getSocketFd() == clientFd) {
+			return client;
+		}
+	}
+	return NULL;
 }
 
 void Server::parseCommand(Client* client, const std::string &msg)
@@ -341,43 +354,52 @@ void Server::parseCommand(Client* client, const std::string &msg)
 	}
 }
 
-void Server::errorMessage(Client* client, int errorCode,  const std::string& errorMsg)
+void Server::serverMessage(Client* client, std::string errorCode,  const std::string& errorMsg)
 {
-	std::ostringstream oss;
-	oss << errorCode;
-    std::string err = ": PIRC " + oss.str() + " " + client->getNickname() + " :" + errorMsg + "\r\n";
-    send(client->getSocketFd(), err.c_str(), err.size(), 0);
+
+	std::string err = ":PIRC " + errorCode + " " + client->getNickname() + " :" + errorMsg + "\r\n";
+	send(client->getSocketFd(), err.c_str(), err.size(), 0);
 }
 
 void Server::sendCommandMessage(Client* sender, const std::string& command, const std::string& params, const std::string& trailing)
 {
-    std::string msg = ":" 
-        + sender->getNickname() + "!"
-        + sender->getUsername() + "@"
-        + sender->getIp()
-        + " " + command + " " + params;
-    
-    if (!trailing.empty())
-        msg += " :" + trailing;
+	std::string msg = ":" 
+		+ sender->getNickname() + "!"
+		+ sender->getUsername() + "@"
+		+ sender->getIp()
+		+ " " + command + " " + params;
+	
+	if (!trailing.empty())
+		msg += " :" + trailing;
 
-    msg += "\r\n";
+	msg += "\r\n";
 
-    send(sender->getSocketFd(), msg.c_str(), msg.size(), 0);
+	send(sender->getSocketFd(), msg.c_str(), msg.size(), 0);
 }
 
 void Server::sendNumericReply(Client* target, int code, const std::string& params, const std::string& trailing)
 {
 	std::ostringstream oss;
 	oss << code;
-    std::string msg = ": PIRC" + oss.str() + " " + target->getNickname();
+	std::string msg = ": PIRC" + oss.str() + " " + target->getNickname();
 
-    if (!params.empty())
-        msg += " " + params;
+	if (!params.empty())
+		msg += " " + params;
 
-    if (!trailing.empty())
-        msg += " :" + trailing;
+	if (!trailing.empty())
+		msg += " :" + trailing;
 
-    msg += "\r\n";
+	msg += "\r\n";
 
-    send(target->getSocketFd(), msg.c_str(), msg.size(), 0);
+	send(target->getSocketFd(), msg.c_str(), msg.size(), 0);
+}
+
+const	std::string& Server::getHost() const
+{
+	return _host;
+}
+
+const	std::string& Server::getCreationTime() const
+{
+	return _creationTime;
 }

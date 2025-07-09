@@ -3,32 +3,25 @@
 
 void UserCommand::execute(Server &server, Client *client, std::istringstream &args)
 {
-	(void) server;
 	std::string username, unused1, unused2, realname;
 	
 	args >> username >> unused1 >> unused2;
 	std::getline(args, realname);
 	if (username.empty() || realname.empty())
 	{
-		std::string err = "461 USER :Not enough parameters\r\n";
-		send(client->getSocketFd(), err.c_str(), err.size(), 0);
+		std::string err = "USER :Not enough parameters";
+		server.serverMessage(client, "461", err);
 		return;
 	}
 
 	if (client->hasUser())
 	{
-		std::string err = "462 :You may not reregister\r\n";
-		send(client->getSocketFd(), err.c_str(), err.size(), 0);
+		std::string err = "USER :You may not reregister";
+		server.serverMessage(client, "462", err);
 		return;
 	}
 
 	client->setUsername(username);
 	client->setHasUser(true);
-
-	if (client->hasUser() && client->hasNick() && client->hasPassedPassword())
-	{
-		client->setLoggedIn(true);
-		std::string welcome = ":server 001 " + client->getNickname() + " :welcome to the IRC server \r\n";
-		send(client->getSocketFd(), welcome.c_str(), welcome.size(), 0);
-	}
+	client->logRoutine(server);
 }

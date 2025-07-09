@@ -9,39 +9,44 @@ void PrivmsgCommand::execute(Server &server, Client *client, std::istringstream 
 	args >> target;
 	std::getline(args, message);
 
-	if (target.empty() || message.empty())
+	if (target.empty())
 	{
-		std::string err = "461 PRIVMSG :Not enough parameters\r\n";
-		send(client->getSocketFd(), err.c_str(), err.size(), 0);
+		server.serverMessage(client, "411", "PRIVMSG :No recipient given (PRIVMSG)");
 		return;
 	}
 
+	
 	bool isDcc = (
 		message.size() >= 2 &&
 		message[0] == '\x01' &&
 		message[message.size() - 1] == '\x01'
 	);
-
+	
 	if (!isDcc)
 	{
 		while (!message.empty() && (message[0] == ' ' || message[0] == ':'))
 			message = message.substr(1);
 	}
-
+	if (message.empty())
+	{
+		server.serverMessage(client, "412", "PRIVMSG :No text to send");
+		return;
+	}
+	
 	if (target[0] == '#')
 	{
 		std::map<std::string, Channel*> channels = server.getChannels();
 		std::map<std::string, Channel*>::iterator chanIt = channels.find(target);
 		if (chanIt == channels.end())
 		{
-			std::string err = "403 " + target + " :No such channel\r\n";
+			std::string err = ":" + server.getName() + " 403 " + client->getNickname() + " " + target + " :PRIVMSG :No such channel\r\n";
 			send(client->getSocketFd(), err.c_str(), err.size(), 0);
 			return;
 		}
 		Channel *channel = chanIt->second;
 		if (!channel->hasClient(client->getSocketFd()))
 		{
-			std::string err = "442 " + target + " :You're not on that channel\r\n";
+			std::string err = ":" + server.getName() + " 442 " + client->getNickname() + " " + target + " :PRIVMSG :You're not on that channel\r\n";
 			send(client->getSocketFd(), err.c_str(), err.size(), 0);
 			return;
 		}
@@ -73,7 +78,7 @@ void PrivmsgCommand::execute(Server &server, Client *client, std::istringstream 
 		}
 		if (!found)
 		{
-			std::string err = "401 " + target + " :No such nick\r\n";
+			std::string err = ":" + server.getName() + " 401 " + client->getNickname() + " " + target + " :PRIVMSG :No such nick\r\n";
 			send(client->getSocketFd(), err.c_str(), err.size(), 0);
 		}
 	}
