@@ -37,6 +37,7 @@ Server::Server(int port, const std::string &password): _serverFd(-1), _port(port
 	_creationTime = buf;
 	setupSocket();
 }
+
 Server::~Server()
 {
 	for (std::map<std::string, ICommand*>::iterator it = _commands.begin(); it != _commands.end(); ++it)
@@ -50,7 +51,9 @@ Server::~Server()
 		delete it->second;
 		close(it->first);
 	}
+	_clients.clear();
 }
+
 Server::Server(const Server &obj)
 {
 	*this = obj;
@@ -204,6 +207,8 @@ void	Server::handleClientMessage(int clientFd)
 }
 void	Server::removeClient(int clientFd)
 {
+	std::map<int, Client*>::iterator it = _clients.find(clientFd);
+	delete it->second;
 	close(clientFd);
 	_clients.erase(clientFd);
 }
