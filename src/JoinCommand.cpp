@@ -30,34 +30,25 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 		// Vérifie si le canal est plein
 		if (channel->isLimitedNbUser() && channel->getClientCount() >= channel->getUserLimit()) {
 			server.errorMessage(client, 471, "JOIN :Cannot join channel (+l)");
+			return;
 		}
-		else if (!channel->isInviteOnly())
-		{
-			// -- success message ✅
-			// std::cout <<  "<client> <channel> :No topic is set" << std::endl;
-			// stc::cout << " "<client> <channel> :<topic>" << std::endl;
-			channel->addClient(client);
-			server.getChan(channelName)->broadcast(joinMsg, -1);
-		}
-		else if (channel->isInviteOnly())
+		
+		if (channel->isInviteOnly())
 		{
 			server.errorMessage(client, 473, "JOIN :Cannot join channel (+i)");
 			return;
 		}
 		// MODE k+ password required
-		else if (channel->isPasswordOnly())
+		if (channel->isPasswordOnly())
 		{
-			if (channel->getChanPassword() == channelPassword)
+			if (channel->getChanPassword() != channelPassword)
 			{
-				// -- success message ✅
-				// std::cout <<  "<client> <channel> :No topic is set" << std::endl;
-				// stc::cout << " "<client> <channel> :<topic>" << std::endl;
-				channel->addClient(client);
-				server.getChan(channelName)->broadcast(joinMsg, -1);
-			}
-			else
 				server.errorMessage(client, 475, "JOIN :Cannot join channel (+k)");
+				return;
+			}
 		} 
+		channel->addClient(client);
+    	server.getChan(channelName)->broadcast(joinMsg, -1);
 	}
 
 	std::string namesList;
