@@ -9,6 +9,7 @@ class Server
 		int									_port;
 		std::string							_password;
 		std::string							_host;
+		std::string							_name;
 		std::map<int, Client *>				_clients;
 		std::map<std::string, Channel *>	_channels;
 		fd_set								_readFds;
@@ -24,6 +25,7 @@ class Server
 		// Getters
 		int		getServerFd() const;
 		const	std::string &getPassword() const;
+		const	std::string &getName() const;
 		std::map<int, Client*> &getClients();
 		const	std::map<int, Client*> &getClients() const;
 		std::map<std::string, Channel*> &getChannels();
