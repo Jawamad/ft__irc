@@ -361,6 +361,13 @@ void Server::serverMessage(Client* client, std::string errorCode,  const std::st
 	send(client->getSocketFd(), err.c_str(), err.size(), 0);
 }
 
+void Server::serverMessagetest(Client* client, const std::string& code, const std::string& command, const std::string& message)
+{
+	std::string err = ":PIRC " + code + " " + client->getNickname() + " " + command + " :" + message + "\r\n";
+	send(client->getSocketFd(), err.c_str(), err.size(), 0);
+}
+
+
 void Server::sendCommandMessage(Client* sender, const std::string& command, const std::string& params, const std::string& trailing)
 {
 	std::string msg = ":" 

@@ -10,23 +10,26 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 	if(channelName.empty())
 	{
 		server.serverMessage(client, "461", "JOIN : Not enough parameters");
+		return;
 	}
+
 	if (channelName[0] != '#')
 		channelName = '#' + channelName;
 	
 	std::string joinMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " JOIN " + channelName + "\r\n";
 	std::map<std::string, Channel*>& channels = server.getChannels();
+	Channel* channel;
+
 	if (channels.find(channelName) == channels.end())
 	{
 		channels[channelName] = new Channel(channelName);
+		channel = channels[channelName];
 		channels[channelName]->addClient(client);
 		channels[channelName]->addOperator(client->getSocketFd());
-		std::cout << "New channel " << channelName << " created by " << client->getNickname() << std::endl;
 	}
 	else
 	{
-		Channel* channel = channels[channelName];
-
+		channel = channels[channelName];
 		// Vérifie si le canal est plein
 		if (channel->isLimitedNbUser() && channel->getClientCount() >= channel->getUserLimit()) {
 			server.serverMessage(client, "471", "JOIN :Cannot join channel (+l)");
@@ -43,7 +46,7 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 		{
 			if (channel->getChanPassword() != channelPassword)
 			{
-				server.errorMessage(client, "475", "JOIN :Cannot join channel (+k)");
+				server.serverMessage(client, "475", "JOIN :Cannot join channel (+k)");
 				return;
 			}
 		} 

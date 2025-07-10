@@ -33,8 +33,8 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		return;
 	}
 	
-	if (modeLetter != "+i" || modeLetter != "-i" || modeLetter != "+t" || modeLetter != "-t"
-		|| modeLetter != "+k" || modeLetter != "-k" || modeLetter != "+l" || modeLetter != "-l")
+	if (modeLetter != "+i" && modeLetter != "-i" && modeLetter != "+t" && modeLetter != "-t"
+		&& modeLetter != "+k" && modeLetter != "-k" && modeLetter != "+l" && modeLetter != "-l")
 	{
 		server.serverMessage(client, "421", "MODE :Unknown command");
 		return;
@@ -73,13 +73,9 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 	}
 	else if (modeLetter == "+k")
 	{
-		// if (modeValue.empty())
-		// {
-		// 	server.errorMessage(client, 461, "MODE :Not enough parameters");
-		// 	return;
-		// }
 		channel->setPasswordStatus(true);
 		channel->setChanPassword(modeValue);
+		std::cout << "key mode on ON" << std::endl;
 		channel->broadcast(response, -1);
 	}
 	else if (modeLetter == "-k")
@@ -90,11 +86,6 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 	}
 	else if (modeLetter == "+l")
 	{
-		// if (modeValue.empty())
-		// {
-		// 	server.errorMessage(client, 461, "MODE :Not enough parameters");
-		// 	return;
-		// }
 		int userLimit = std::atoi(modeValue.c_str());
 		if (userLimit <= 0)
 		{
@@ -114,11 +105,6 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 	}
 	else if (modeLetter == "+o" || modeLetter == "-o")
 	{
-		// if (modeValue.empty())
-		// {
-		// 	server.errorMessage(client, 461, "MODE :Not enough parameters");
-		// 	return;
-		// }
 
 		Client* target = server.findClientByNickname(modeValue);
 		if (!target)
