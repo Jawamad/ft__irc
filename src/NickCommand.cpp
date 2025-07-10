@@ -1,6 +1,18 @@
 #include "../inc/NickCommand.hpp"
 #include "../inc/Server.hpp"
 
+bool isValidNickname(const std::string &nick)
+{
+	if (nick.empty() || !(isalpha(nick[0]) || std::strchr("[]\\`^{}|", nick[0])))
+		return false;
+	for (size_t i = 1; i < nick.size(); ++i)
+	{
+		if (!isalnum(nick[i]) && !std::strchr("[]\\`^{}|-", nick[i]))
+			return false;
+	}
+	return true;
+}
+
 void NickCommand::execute(Server &server, Client *client, std::istringstream &args)
 {
 	std::string nickname;
@@ -8,6 +20,12 @@ void NickCommand::execute(Server &server, Client *client, std::istringstream &ar
 	if (nickname.empty())
 	{
 		std::string err = "431 :No nickname given\r\n";
+		send(client->getSocketFd(), err.c_str(), err.size(), 0);
+		return;
+	}
+	if (nickname.length() > 30 || !isValidNickname(nickname))
+	{
+		std::string err = "432 " + client->getNickname() + " " + nickname + " :Erroneous nickname\r\n";
 		send(client->getSocketFd(), err.c_str(), err.size(), 0);
 		return;
 	}

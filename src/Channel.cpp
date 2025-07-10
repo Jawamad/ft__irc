@@ -12,7 +12,10 @@ Channel::Channel(const Channel& obj)
 {
 	*this = obj;
 }
-Channel::~Channel() {}
+Channel::~Channel()
+{
+	std::cout << "test channel" << std::endl;
+}
 Channel& Channel::operator=(const Channel& obj)
 {
 	if (this != &obj)
