@@ -356,12 +356,11 @@ void Server::parseCommand(Client* client, const std::string &msg)
 
 void Server::serverMessage(Client* client, std::string errorCode,  const std::string& errorMsg)
 {
-
 	std::string err = ":PIRC " + errorCode + " " + client->getNickname() + " :" + errorMsg + "\r\n";
 	send(client->getSocketFd(), err.c_str(), err.size(), 0);
 }
-
-void Server::serverMessagetest(Client* client, const std::string& code, const std::string& command, const std::string& message)
+// ;essqge d erreur aui fonctionne
+void Server::errorMessage(Client* client, const std::string& code, const std::string& command, const std::string& message)
 {
 	std::string err = ":PIRC " + code + " " + client->getNickname() + " " + command + " :" + message + "\r\n";
 	send(client->getSocketFd(), err.c_str(), err.size(), 0);

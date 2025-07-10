@@ -9,7 +9,7 @@ void TopicCommand::execute(Server &server, Client *client, std::istringstream &a
 
 	if (channelName.empty())
 	{
-		server.serverMessage(client, "461", "TOPIC :Not enough parameters");
+		server.errorMessage(client, "461", "TOPIC", "Not enough parameters");
 		return;
 	}
 
@@ -20,19 +20,19 @@ void TopicCommand::execute(Server &server, Client *client, std::istringstream &a
 
 	if (!channel)
 	{
-		server.serverMessage(client, "403", "TOPIC :no such channel");
+		server.errorMessage(client, "403", "TOPIC", "No such channel");
 		return;	
 	}
 	
 	if (!channel->searchMember(client->getNickname()))
 	{
-		server.serverMessage(client, "442", channelName + "TOPIC :You're not on that channel");
+		server.errorMessage(client, "442", channelName, "You're not on that channel");
 		return;
 	}
 
 	if (!channel->isOperator(client->getSocketFd()))
 	{
-		server.serverMessage(client, "482", "TOPIC :You're not channel operator");
+		server.errorMessage(client, "482", "TOPIC", "You're not channel operator");
 		return;
 	}
 

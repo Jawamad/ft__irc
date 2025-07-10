@@ -9,7 +9,7 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	if (channelName.empty() ||  clientToKick.empty())
 	{
-		server.serverMessage(client, "461", "KICK :Not enough parameters");
+		server.errorMessage(client, "461", "KICK", "Not enough parameters");
 		return;
 	}
 
@@ -20,37 +20,43 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	if (!channel)
 	{
-		server.serverMessage(client, "403", "KICK :no such channel");
+		server.errorMessage(client, "403", "KICK", "No such channel");
 		return;	
 	}
 
 	if (!channel->isOperator(client->getSocketFd()))
 	{
-		server.serverMessage(client, "482", "KICK :You're not channel operator");
+		server.errorMessage(client, "482", "KICK", "You're not channel operator");
 		return;
 	}
 
 	if (!channel->searchMember(clientToKick))
 	{
-		server.serverMessage(client, "441", "KICK :They aren't on that channel");
+		server.errorMessage(client, "441", "KICK", "They aren't on that channel");
 		return;
 	}
 
 	if (!channel->searchMember(client->getNickname()))
 	{
-		server.serverMessage(client, "442", channelName + "KICK :You're not on that channel");
+
+		server.errorMessage(client, "442", channelName, "You're not on that channel");
 		return;
 	}
 
 	Client* clientToKickPtr = server.findClientByNickname(clientToKick);
 	if (!clientToKickPtr)
 	{
-		server.serverMessage(client, "401", "KICK :No such nick/channel");
+		server.errorMessage(client, "401", "KICK", "No such nick/channel");
 		return;
 	}
 
-	std::string kickMsg =  channelName + " " + clientToKickPtr->getNickname();
-	server.sendCommandMessage(client, "KICK", kickMsg, "");
+	// CE BLOQUE LA FONCTIONNE 
+	std::string kickParams = channelName + " " + clientToKickPtr->getNickname();
+	std::string reason = "Kicked by operator";
+
+	// Envoyer le KICK aux deux clients : kicker et kické
+	server.sendCommandMessage(client, "KICK", kickParams, reason);
+	server.sendCommandMessage(clientToKickPtr, "KICK", kickParams, reason);
 
 	channel->clientGetsKickByOperator(client->getNickname(), *clientToKickPtr);
 			
