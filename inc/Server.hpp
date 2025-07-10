@@ -48,6 +48,7 @@ class Server
 		void	delChannel(std::string chanName);
 		void	delClient(int fd);
 		bool	hasChannel(std::string chanName);
+		bool	hasClient(int fd);
 		Client*	getClientByNick(std::string nickname);
 
 		// server setup

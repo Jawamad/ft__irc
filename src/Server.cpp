@@ -133,9 +133,10 @@ void	Server::delClient(int fd)
 {
 	if (_clients.find(fd) != _clients.end())
 	{
+		for (std::map<std::string, Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+			it->second->removeClient(fd);
 		delete _clients[fd];
 		_clients.erase(fd);
-
 	}
 	FD_CLR(fd, &_readFds);
 	close(fd);
@@ -146,6 +147,14 @@ Channel* Server::getChan(std::string chanName)
 	if (it == _channels.end())
 		return NULL;
 	return it->second;
+}
+
+bool	Server::hasClient(int fd)
+{
+	std::map<int, Client*>::iterator it = _clients.find(fd);
+	if (it != _clients.end())
+		return true;
+	return false;
 }
 
 //server setup
@@ -272,6 +281,7 @@ void	Server::updateFdSet()
 			_maxFd = fd;
 	}
 }
+
 void	Server::processClientData(Client* client)
 {
 	bool ok = client->receiveMessage();
@@ -283,7 +293,8 @@ void	Server::processClientData(Client* client)
 		return;
 	}
 	size_t pos;
-	while ((pos = client->getBuffer().find('\n')) != std::string::npos)
+	int fd = client->getSocketFd();
+	while (hasClient(fd) && ((pos = client->getBuffer().find('\n')) != std::string::npos))
 	{
 		std::string line = client->getBuffer().substr(0, pos);
 		client->getBuffer().erase(0, pos + 1);

@@ -3,15 +3,22 @@
 
 void UserCommand::execute(Server &server, Client *client, std::istringstream &args)
 {
-	std::string username, unused1, unused2, realname;
+	std::string username, unused1, unused2, realname, line;
 	
 	args >> username >> unused1 >> unused2;
-	std::getline(args, realname);
+	std::getline(args, line);
+	std::size_t colon = line.find(':');
+	realname = (colon != std::string::npos) ? line.substr(colon + 1) : "";
 	if (username.empty() || realname.empty())
 	{
 		std::string err = "USER :Not enough parameters";
 		server.serverMessage(client, "461", err);
 		return;
+	}
+	if (username.length() > 12)
+	{
+		std::string err = username + ":Erroneous username";
+		server.serverMessage(client, "432", err);
 	}
 
 	if (client->hasUser())
