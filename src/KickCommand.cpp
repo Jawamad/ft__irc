@@ -60,5 +60,5 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	channel->clientGetsKickByOperator(client->getNickname(), *clientToKickPtr);
 			
-	channel->broadcast(kickMsg, -1);
+	channel->broadcast(kickParams, -1);
 }
