@@ -116,7 +116,6 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		if (!channel->hasClient(target->getSocketFd()))
 		{
 			server.errorMessage(client, "441", modeValue + " " + channelName, "They aren't on that channel");
-			// server.serverMessage(client, "441", modeValue + " " + channelName + "MODE :They aren't on that channel");
 			return;
 		}
 

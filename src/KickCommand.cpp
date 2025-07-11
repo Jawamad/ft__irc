@@ -7,6 +7,7 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 	std::string clientToKick;
 	args >> channelName >> clientToKick;
 
+	// test ::: OK ✅ pas de message d'erreur mais ca ignore
 	if (channelName.empty() ||  clientToKick.empty())
 	{
 		server.errorMessage(client, "461", "KICK", "Not enough parameters");
@@ -17,32 +18,35 @@ void KickCommand::execute(Server &server, Client *client, std::istringstream &ar
 		channelName = '#' + channelName;
 
 	Channel* channel = server.getChan(channelName); 
-
+	
+	// test ::: OK ✅
 	if (!channel)
 	{
 		server.errorMessage(client, "403", "KICK", "No such channel");
 		return;	
 	}
 
+	// test ::: OK ✅ 
+	if (!channel->searchMember(client->getNickname()))
+	{
+		server.errorMessage(client, "442", channelName, "You're not on that channel");
+		return;
+	}
+
+	// test ::: OK ✅ 
 	if (!channel->isOperator(client->getSocketFd()))
 	{
 		server.errorMessage(client, "482", "KICK", "You're not channel operator");
 		return;
 	}
-
+	// test ::: OK ✅ 
 	if (!channel->searchMember(clientToKick))
 	{
 		server.errorMessage(client, "441", "KICK", "They aren't on that channel");
 		return;
 	}
 
-	if (!channel->searchMember(client->getNickname()))
-	{
-
-		server.errorMessage(client, "442", channelName, "You're not on that channel");
-		return;
-	}
-
+	// test ::: OK ✅ 
 	Client* clientToKickPtr = server.findClientByNickname(clientToKick);
 	if (!clientToKickPtr)
 	{
