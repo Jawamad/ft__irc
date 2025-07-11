@@ -7,6 +7,7 @@ void InviteCommand::execute(Server &server, Client *client, std::istringstream &
 	std::string clientToInvite;
 	args >> channelName >> clientToInvite;
 
+	// test ::: OK ✅
 	if(channelName.empty() || clientToInvite.empty())
 	{
 		server.errorMessage(client, "461", "INVITE", "Not enough parameters");
@@ -17,12 +18,14 @@ void InviteCommand::execute(Server &server, Client *client, std::istringstream &
 
 	Channel* channel = server.getChan(channelName); 
 
+	// test ::: OK ✅
 	if (!channel)
 	{
 		server.errorMessage(client, "403", "INVITE", "No such channel");
 		return;	
 	}
-	
+
+	// test ::: OK ✅
 	if (!channel->searchMember(client->getNickname()))
 	{
 		server.errorMessage(client, "442", channelName, "You're not on that channel");
@@ -30,22 +33,26 @@ void InviteCommand::execute(Server &server, Client *client, std::istringstream &
 		return;
 	}
 
-	if (!channel->isOperator(client->getSocketFd()))
-	{
-		server.errorMessage(client, "482", "INVITE", "You're not channel operator");
-		return;
-	}
-
+	// test ::: OK ✅
 	if (channel->searchMember(clientToInvite))
 	{
 		server.errorMessage(client, "443", "INVITE", "is already on channel");
 		return;
 	}
 
+	// test ::: OK ✅
+	if (!channel->isOperator(client->getSocketFd()))
+	{
+		server.errorMessage(client, "482", "INVITE", "You're not channel operator");
+		return;
+	}
+
+	// test ::: OK ✅
 	Client* clientToInvitePtr = server.findClientByNickname(clientToInvite);
 	if (!clientToInvitePtr)
 	{
-		server.errorMessage(client, "401", "INVITE", "No such nick/channel");
+		server.errorMessage(client, "401", clientToInvite, "No such nick/channel");
+		// server.errorMessage(client, "401", "INVITE", "No such nick/channel");
 		return;
 	}
 
