@@ -1,6 +1,8 @@
 #include "../inc/TopicCommand.hpp"
 #include "../inc/Server.hpp"
 
+// verif tout est ok !
+
 void TopicCommand::execute(Server &server, Client *client, std::istringstream &args)
 {
 	std::string channelName;
@@ -18,19 +20,19 @@ void TopicCommand::execute(Server &server, Client *client, std::istringstream &a
 	 	channelName = '#' + channelName;
 
 	Channel* channel = server.getChan(channelName);
-
+	// test ::: OK ✅
 	if (!channel)
 	{
 		server.errorMessage(client, "403", "TOPIC", "No such channel");
 		return;
 	}
-
+	// test ::: OK ✅
 	if (!channel->searchMember(client->getNickname()))
 	{
 		server.errorMessage(client, "442", channelName, "You're not on that channel");
 		return;
 	}
-
+	// test ::: OK ✅
 	// Si aucun nouveau topic : affichage du topic actuel
 	if (newTopic.empty() || newTopic == " ")
 	{
@@ -54,6 +56,7 @@ void TopicCommand::execute(Server &server, Client *client, std::istringstream &a
 		return;
 	}
 
+	// test ::: OK ✅
 	// Mise à jour du topic
 	channel->setTopic(newTopic);
 	std::string msg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp()
@@ -62,62 +65,3 @@ void TopicCommand::execute(Server &server, Client *client, std::istringstream &a
 	// Broadcast du changement à tous les membres du channel
 	channel->broadcast(msg, -1);
 }
-
-
-// void TopicCommand::execute(Server &server, Client *client, std::istringstream &args)
-// {
-// 	std::string channelName;
-// 	std::string newTopic;
-// 	args >> channelName >> newTopic;
-
-// 	if (channelName.empty())
-// 	{
-// 		server.errorMessage(client, "461", "TOPIC", "Not enough parameters");
-// 		return;
-// 	}
-
-// 	if (channelName[0] != '#')
-// 	 	channelName = '#' + channelName;
-
-// 	Channel* channel = server.getChan(channelName);
-
-// 	if (!channel)
-// 	{
-// 		server.errorMessage(client, "403", "TOPIC", "No such channel");
-// 		return;	
-// 	}
-	
-// 	if (!channel->searchMember(client->getNickname()))
-// 	{
-// 		server.errorMessage(client, "442", channelName, "You're not on that channel");
-// 		return;
-// 	}
-
-// 	if (!channel->isOperator(client->getSocketFd()))
-// 	{
-// 		server.errorMessage(client, "482", "TOPIC", "You're not channel operator");
-// 		return;
-// 	}
-
-// 	if(!newTopic.empty())
-// 	{
-// 		if (!channel->topicIsOperatorModOnly())
-// 		{
-// 			channel->setTopic(newTopic);
-// 			std::cout << "Topic of channel updated to : " << channel->getTopic() << std::endl;
-// 		}
-// 		if (channel->isOperator(client->getSocketFd())) 
-// 		{
-// 			channel->setTopic(newTopic);
-// 			std::cout << "Topic of channel updated to (by operator) : " << channel->getTopic() << std::endl;
-// 		}
-// 	} 
-// 	else 
-// 	{
-// 		if (channel->getTopic().empty())
-// 			server.sendCommandMessage(client, "TOPIC :No topic is set", "331", "");
-// 		else
-// 			server.sendCommandMessage(client, "TOPIC :" + channel->getTopic(), "332","");
-// 		return;
-// 	}
-// }
