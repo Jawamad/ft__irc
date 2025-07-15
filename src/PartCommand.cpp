@@ -8,14 +8,13 @@ void PartCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	if(channelName.empty())
 	{
-		std::string err = "461 PART :Not enough parameters\r\n";
-		send(client->getSocketFd(), err.c_str(), err.size(), 0);
+		server.serverMessage(client, "461", "PART :Not enough parameters");
 		return;
 	}
 	std::map<std::string, Channel*> channels = server.getChannels();
 	if (channels.find(channelName) == channels.end())
 	{
-		std::string err = "403 " + channelName + " :No such channel\r\n";
+		std::string err = ":" + server.getName() + " 403 " + client->getNickname() + " " + channelName + " :PART :No such channel\r\n";
 		send(client->getSocketFd(), err.c_str(), err.size(), 0);
 		return;
 	}
@@ -24,7 +23,7 @@ void PartCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	if (!channel->hasClient(client->getSocketFd()))
 	{
-		std::string err = "442 " + channelName + " :You're not on that channel\r\n";
+		std::string err = ":" + server.getName() + " 442 " + client->getNickname() + " " + channelName + " :PART :You're not on that channel\r\n";
 		send(client->getSocketFd(), err.c_str(), err.size(), 0);
 		return;
 	}
