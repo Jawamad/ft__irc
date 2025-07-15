@@ -17,10 +17,7 @@ Client::Client(const Client& obj)
 	*this = obj;
 }
 
-Client::~Client()
-{
-	std::cout << "Client destroyed for fd: " << _socketFd << std::endl;
-}
+Client::~Client() {}
 
 Client& Client::operator=(const Client& obj)
 {

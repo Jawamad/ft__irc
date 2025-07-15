@@ -12,7 +12,10 @@ Channel::Channel(const Channel& obj)
 {
 	*this = obj;
 }
-Channel::~Channel() {}
+Channel::~Channel()
+{
+	std::cout << "test channel" << std::endl;
+}
 Channel& Channel::operator=(const Channel& obj)
 {
 	if (this != &obj)
@@ -108,13 +111,13 @@ void Channel::setPasswordStatus(bool status) {
 ///////////////////////////////////////
 
 bool Channel::isLimitedNbUser() const {
-    return _hasUserLimit;
+	return _hasUserLimit;
 }
 
 ///////////////////////////////////////
 
 void Channel::setLimitedNbUser(bool status) {
-    _hasUserLimit = status;
+	_hasUserLimit = status;
 }
 
 ///////////////////////////////////////
@@ -163,7 +166,7 @@ void Channel::addOperator(int clientFd) {
 	{
 		_operators.insert(clientFd);
 		// int last = *(_operators.rbegin());
-	    // std::cout << "Last operator: " << last << std::endl;
+		// std::cout << "Last operator: " << last << std::endl;
 	}
 }
 
@@ -187,13 +190,13 @@ void Channel::clientGetsInviteByOperator(const std::string &nickName, Client &cl
 
 Client* Channel::searchMember(const std::string& nickname) const
 {
-    std::map<int, Client*>::const_iterator it;
-    for (it = this->_clients.begin(); it != this->_clients.end(); ++it)
-    {
-        if (it->second->getNickname() == nickname)
-        {
-            return it->second;
-        }
-    }
-    return NULL;
+	std::map<int, Client*>::const_iterator it;
+	for (it = this->_clients.begin(); it != this->_clients.end(); ++it)
+	{
+		if (it->second->getNickname() == nickname)
+		{
+			return it->second;
+		}
+	}
+	return NULL;
 }

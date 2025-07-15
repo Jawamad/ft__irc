@@ -52,6 +52,7 @@ Server::~Server()
 		close(it->first);
 	}
 	_clients.clear();
+	_channels.clear();
 }
 
 Server::Server(const Server &obj)
@@ -127,15 +128,17 @@ void	Server::addChannel(std::string chanName)
 }
 void	Server::delChannel(std::string chanName)
 {
+	delete (_channels[chanName]);
 	_channels.erase(chanName);
 }
 void	Server::delClient(int fd)
 {
 	if (_clients.find(fd) != _clients.end())
 	{
+		for (std::map<std::string, Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+			it->second->removeClient(fd);
 		delete _clients[fd];
 		_clients.erase(fd);
-
 	}
 	FD_CLR(fd, &_readFds);
 	close(fd);
@@ -148,6 +151,14 @@ Channel* Server::getChan(std::string chanName)
 	return it->second;
 }
 
+bool	Server::hasClient(int fd)
+{
+	std::map<int, Client*>::iterator it = _clients.find(fd);
+	if (it != _clients.end())
+		return true;
+	return false;
+}
+
 //server setup
 bool	Server::start()
 {
@@ -156,6 +167,7 @@ bool	Server::start()
 	std::cout << "Server is closed !" << std::endl;
 	return true;
 }
+
 void	Server::run()
 {
 	std::signal(SIGINT, handleSignal);
@@ -166,7 +178,7 @@ void	Server::run()
 		if (activity < 0)
 		{
 			if (!g_shouldExit)
-				std::cerr << "Server error: select" << std::endl;
+				std::cerr << ":" << this->getName() << " :Server error: select" << std::endl;
 			continue;
 		}
 
@@ -195,7 +207,7 @@ void	Server::acceptNewClient()
 
 	if (clientFd < 0)
 	{
-		std::cerr << "Server Error: accept." << std::endl;
+		std::cerr << ":" << this->getName() << " :Server Error: accept." << std::endl;
 		return;
 	}
 
@@ -221,7 +233,7 @@ void	Server::setupSocket()
 	_serverFd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_serverFd < 0)
 	{
-		std::cerr << "Server Error: init socketfd" << std::endl;
+		std::cerr << ":" << this->getName() << " :Server Error: init socketfd" << std::endl;
 		g_shouldExit = 1;
 		return;
 	}
@@ -230,7 +242,7 @@ void	Server::setupSocket()
 	int opt = 1;
 	if (setsockopt(_serverFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
 	{
-		std::cerr << "Server Error: setsockopt" << std::endl;
+		std::cerr << ":" << this->getName() << " :Server Error: setsockopt" << std::endl;
 		g_shouldExit = 1;
 		return ;
 	}
@@ -243,14 +255,14 @@ void	Server::setupSocket()
 
 	if ( bind(_serverFd, (struct sockaddr *)&addr, sizeof(addr)) < 0)
 	{
-		std::cerr << "Server Error: bind" << std::endl;
+		std::cerr << ":" << this->getName() << " :Server Error: bind" << std::endl;
 		g_shouldExit = 1;
 		return ;
 	}
 
 	if (listen(_serverFd, 5) < 0)
 	{
-		std::cerr << "Server Error: listen" << std::endl;
+		std::cerr << ":" << this->getName() << " :Server Error: listen" << std::endl;
 		g_shouldExit = 1;
 		return ;
 	}
@@ -271,6 +283,7 @@ void	Server::updateFdSet()
 			_maxFd = fd;
 	}
 }
+
 void	Server::processClientData(Client* client)
 {
 	bool ok = client->receiveMessage();
@@ -282,7 +295,8 @@ void	Server::processClientData(Client* client)
 		return;
 	}
 	size_t pos;
-	while ((pos = client->getBuffer().find('\n')) != std::string::npos)
+	int fd = client->getSocketFd();
+	while (hasClient(fd) && ((pos = client->getBuffer().find('\n')) != std::string::npos))
 	{
 		std::string line = client->getBuffer().substr(0, pos);
 		client->getBuffer().erase(0, pos + 1);
@@ -339,8 +353,7 @@ void Server::parseCommand(Client* client, const std::string &msg)
 
 	if (!client->isLoggedIn() && command != "NICK" && command != "USER" && command != "PASS" && command != "QUIT" && command != "CAP")
 	{
-		std::string err = "451 :You have not registered\r\n";
-		send(client->getSocketFd(), err.c_str(), err.size(), 0);
+		serverMessage(client, "451", "Server Error :You have not registered");
 		return ;
 	}
 
@@ -349,7 +362,7 @@ void Server::parseCommand(Client* client, const std::string &msg)
 		it->second->execute(*this, client, iss);
 	else
 	{
-		std::string err = "421 " + command + " :Unknown command\r\n";
+		std::string err = ":" + this->getName() + " 421 " + client->getNickname() + " " + command + " :Server Error :Unknown command\r\n";
 		send(client->getSocketFd(), err.c_str(), err.size(), 0);
 	}
 }
@@ -387,7 +400,7 @@ void Server::sendNumericReply(Client* target, int code, const std::string& param
 {
 	std::ostringstream oss;
 	oss << code;
-	std::string msg = ": PIRC" + oss.str() + " " + target->getNickname();
+	std::string msg = ":PIRC" + oss.str() + " " + target->getNickname();
 
 	if (!params.empty())
 		msg += " " + params;

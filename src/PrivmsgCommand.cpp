@@ -35,6 +35,7 @@ void PrivmsgCommand::execute(Server &server, Client *client, std::istringstream 
 	
 	if (target[0] == '#')
 	{
+
 		std::map<std::string, Channel*> channels = server.getChannels();
 		std::map<std::string, Channel*>::iterator chanIt = channels.find(target);
 		if (chanIt == channels.end())
@@ -50,8 +51,10 @@ void PrivmsgCommand::execute(Server &server, Client *client, std::istringstream 
 			send(client->getSocketFd(), err.c_str(), err.size(), 0);
 			return;
 		}
-
-		std::string fullMessage = ":" + client->getNickname() + "!" +
+		std::string nickname = client->getNickname();
+		if (channel->isOperator(client->getSocketFd()))
+			nickname.insert(0, 1, '@');
+		std::string fullMessage = ":" + nickname + "!" +
 			client->getUsername() + "@" + client->getIp() +
 			" PRIVMSG " + target + " :" + message + "\r\n";
 
