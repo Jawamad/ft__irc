@@ -3,11 +3,11 @@
 
 bool isValidNickname(const std::string &nick)
 {
-	if (nick.empty() || !(isalpha(nick[0]) || std::strchr("[]\\`^{}|", nick[0])))
+	if (nick.empty() || !(isalpha(nick[0]) || std::strchr("[]\\`^{}|_", nick[0])))
 		return false;
 	for (size_t i = 1; i < nick.size(); ++i)
 	{
-		if (!isalnum(nick[i]) && !std::strchr("[]\\`^{}|-", nick[i]))
+		if (!isalnum(nick[i]) && !std::strchr("[]\\`^{}|-_", nick[i]))
 			return false;
 	}
 	return true;

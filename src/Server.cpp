@@ -15,7 +15,6 @@ void handleSignal(int signum)
 
 Server::Server(int port, const std::string &password): _serverFd(-1), _port(port), _password(password), _host("localhost"), _name("PIRC"), _maxFd(0)
 {
-	// operator
 	_commands["KICK"] = new KickCommand();
 	_commands["INVITE"] = new InviteCommand();
 	_commands["TOPIC"] = new TopicCommand();
