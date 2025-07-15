@@ -71,11 +71,6 @@ class Server
 		void sendCommandMessage(Client* sender, const std::string& command, const std::string& params, const std::string& trailing);
 		void sendNumericReply(Client* target, int code, const std::string& params, const std::string& trailing);
 
-	private:
-		void	setupSocket();
-		void	updateFdSet();
-		void	processClientData(Client* client);
-		void	parseCommand(Client* client, const std::string &msg);
 };
 
 #endif
