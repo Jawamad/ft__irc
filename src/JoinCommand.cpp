@@ -10,54 +10,48 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 	if(channelName.empty())
 	{
 		server.serverMessage(client, "461", "JOIN : Not enough parameters");
+		return;
 	}
+
 	if (channelName[0] != '#')
 		channelName = '#' + channelName;
 	
 	std::string joinMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " JOIN " + channelName + "\r\n";
 	std::map<std::string, Channel*>& channels = server.getChannels();
+	Channel* channel;
+
 	if (channels.find(channelName) == channels.end())
 	{
 		channels[channelName] = new Channel(channelName);
+		channel = channels[channelName];
 		channels[channelName]->addClient(client);
 		channels[channelName]->addOperator(client->getSocketFd());
-		std::cout << "New channel " << channelName << " created by " << client->getNickname() << std::endl;
 	}
 	else
 	{
-		Channel* channel = channels[channelName];
-
+		channel = channels[channelName];
 		// Vérifie si le canal est plein
 		if (channel->isLimitedNbUser() && channel->getClientCount() >= channel->getUserLimit()) {
 			server.serverMessage(client, "471", "JOIN :Cannot join channel (+l)");
+			return;
 		}
-		else if (!channel->isInviteOnly())
-		{
-			// -- success message ✅
-			// std::cout <<  "<client> <channel> :No topic is set" << std::endl;
-			// stc::cout << " "<client> <channel> :<topic>" << std::endl;
-			channel->addClient(client);
-			server.getChan(channelName)->broadcast(joinMsg, -1);
-		}
-		else if (channel->isInviteOnly())
+		
+		if (channel->isInviteOnly())
 		{
 			server.serverMessage(client, "473", "JOIN :Cannot join channel (+i)");
 			return;
 		}
 		// MODE k+ password required
-		else if (channel->isPasswordOnly())
+		if (channel->isPasswordOnly())
 		{
-			if (channel->getChanPassword() == channelPassword)
+			if (channel->getChanPassword() != channelPassword)
 			{
-				// -- success message ✅
-				// std::cout <<  "<client> <channel> :No topic is set" << std::endl;
-				// stc::cout << " "<client> <channel> :<topic>" << std::endl;
-				channel->addClient(client);
-				server.getChan(channelName)->broadcast(joinMsg, -1);
-			}
-			else
 				server.serverMessage(client, "475", "JOIN :Cannot join channel (+k)");
+				return;
+			}
 		} 
+		channel->addClient(client);
+    	server.getChan(channelName)->broadcast(joinMsg, -1);
 	}
 
 
