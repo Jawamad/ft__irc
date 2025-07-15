@@ -1,4 +1,9 @@
 #include "Bot.hpp"
+Bot::Bot() : sock(-1), sig(NULL), connected(false), addr(""), pass(""), nick("bot"), receive(""), messages()
+{
+	std::memset(&serv_addr, 0, sizeof(serv_addr));
+	std::memset(buf, 0, sizeof(buf));
+}
 
 Bot::Bot(bool *sig, std::string addr, int port, std::string pass, std::string nick): sig(sig), addr(addr), pass(pass), nick(nick)
 {
@@ -8,29 +13,51 @@ Bot::Bot(bool *sig, std::string addr, int port, std::string pass, std::string ni
 	serv_addr.sin_port = htons(port);
 
 	struct addrinfo hints, *servinfo;
-	int rv;
 
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
-	rv = getaddrinfo( addr.c_str() , 0 , &hints , &servinfo);
-	(void) rv;
-
+	int rv = getaddrinfo( addr.c_str() , 0 , &hints , &servinfo);
+	if (rv != 0)
+		throw std::runtime_error("getaddinfo() failed");
 	serv_addr.sin_addr = ((struct sockaddr_in *) servinfo->ai_addr)->sin_addr;
 	std::cout << "Connecting to " << addr << ":" << port << std::endl;
 	if (connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0)
 		throw std::runtime_error("connect() failed");
 	freeaddrinfo(servinfo);
-	int flags = fcntl(sock, F_GETFL, 0);
-	fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+}
 
+Bot::Bot(const Bot &other)
+{
+	*this = other;
+}
+
+Bot &Bot::operator=(const Bot &other)
+{
+	if (this != &other)
+	{
+		sig = other.sig;
+		addr = other.addr;
+		pass = other.pass;
+		nick = other.nick;
+		connected = other.connected;
+		receive = other.receive;
+		messages = other.messages;
+		std::memcpy(buf, other.buf, sizeof(buf));
+		sock = -1;
+		std::memset(&serv_addr, 0, sizeof(serv_addr));
+	}
+	return *this;
 }
 
 Bot::~Bot()
 {
 	std::cout << "So long !" << std::endl;
-	send_command("QUIT");
-	close(sock);
+	if (sock != -1)
+	{
+		sendCommand("QUIT");
+		close(sock);
+	}
 }
 
 void	Bot::talk(std::string message)
@@ -49,7 +76,7 @@ static std::string extractMessageContent(const std::string& line)
 void	Bot::online()
 {
 	if (!pass.empty())
-		send_command("PASS " + pass);
+		sendCommand("PASS " + pass);
 	messages.insert(messages.begin(), "\0");
 	std::memset(buf, 0, sizeof(buf));
 	connected = false;
@@ -57,9 +84,9 @@ void	Bot::online()
 	{
 		try
 		{
-			send_command("NICK " + nick);
-			send_command("USER " + nick + " " + nick + " " + addr + " :" + nick);
-			serv_response();
+			sendCommand("NICK " + nick);
+			sendCommand("USER " + nick + " " + nick + " " + addr + " :" + nick);
+			servResponse();
 			
 			std::string msg = messages.front();
 			messages.erase(messages.begin());
@@ -76,25 +103,31 @@ void	Bot::online()
 	while (!*sig)
 	{
 		if (messages.empty())
-			serv_response();
+			servResponse();
 		std::string msg = messages.front();
 		messages.erase(messages.begin());
 		if (msg.find("001 " + nick) != std::string::npos)
 			break;
 	}
-	send_command("JOIN " + nick);
-	serv_response();
+	sendCommand("JOIN " + nick);
+	servResponse();
 	std::string msg = messages.front();
+	messages.erase(messages.begin());
+	if (msg.find("PIRC "))
 	while (!*sig)
 	{
 		if (messages.empty())
-			serv_response();
+			servResponse();
 		std::string msg = extractMessageContent(messages.front());
 		messages.erase(messages.begin());
 		if (msg.empty())
 			continue;
 		if (msg.find("TIME") != std::string::npos)
-			print_current_time();
+			printCurrentTime();
+		if (msg.find("ROLL") != std::string::npos)
+			rollDice(msg);
+		if (msg.find("BANLIST") != std::string::npos)
+			displayBanlist("bot/banlist.txt");
 		if (msg.find("RBANWORD") != std::string::npos)
 		{
 			std::string toBan = msg.substr(std::string("RBANWORD").length());
@@ -104,7 +137,7 @@ void	Bot::online()
 				continue;
 			removeBannedWord(toBan, "bot/banlist.txt");
 		}
-		if (msg.find("ABANWORD") != std::string::npos)
+		else if (msg.find("ABANWORD") != std::string::npos)
 		{
 			std::string toBan = msg.substr(std::string("ABANWORD").length());
 			while (!toBan.empty() && toBan[0] == ' ')
@@ -113,23 +146,19 @@ void	Bot::online()
 			continue;
 			addBannedWord(toBan, "bot/banlist.txt");
 		}
-		if (msg.find("BANLIST") != std::string::npos)
-        {
-            displayBanlist("bot/banlist.txt");
-        }
 		else
 			containsBannedWord(msg, "bot/banlist.txt");
 	}
 }
 
-void	Bot::send_command(std::string command)
+void	Bot::sendCommand(std::string command)
 {
 	command += "\r\n";
 	if (send(sock, command.c_str(), command.size(), 0) < 0)
 		throw std::runtime_error("send() failed");
 }
 
-void	Bot::serv_response()
+void	Bot::servResponse()
 {
 	struct pollfd pfd;
 
@@ -159,7 +188,7 @@ void	Bot::serv_response()
 	}
 }
 
-void	Bot::print_current_time()
+void	Bot::printCurrentTime()
 {
 	std::time_t now = std::time(NULL);
 	std::tm* local = std::localtime(&now);
@@ -168,7 +197,7 @@ void	Bot::print_current_time()
 	std::strftime(buffer, sizeof(buffer), "%H:%M:%S", local);
 
 	std::cout << "Il est " << buffer << std::endl;
-	send_command("PRIVMSG #" + nick + " Il est " + buffer + ".");
+	sendCommand("PRIVMSG #" + nick + " Il est " + buffer + ".");
 }
 
 
@@ -212,7 +241,7 @@ bool Bot::containsBannedWord(const std::string& message, const std::string& file
 	{
 		if (banned.find(toLower(word)) != banned.end())
 		{
-			send_command("PRIVMSG #" + nick + " WARNING ! BAD LANGUAGE DETECTED !");
+			sendCommand("PRIVMSG #" + nick + " WARNING ! BAD LANGUAGE DETECTED !");
 			std::cout << "WARNING ! BAD LANGUAGE DETECTED !" << std::endl;
 			return true;
 		}
@@ -231,11 +260,11 @@ void Bot::addBannedWord(const std::string& word, const std::string& filename)
 	{
 		if (banned.find(words) != banned.end())
 		{
-			send_command("PRIVMSG #" + nick + " Word already in banlist !");
+			sendCommand("PRIVMSG #" + nick + " Word already in banlist !");
 			std::cout << "Word already in banlist !" << std::endl;
 			return;
 		}
-		send_command("PRIVMSG #" + nick + " Word added in banlist !");
+		sendCommand("PRIVMSG #" + nick + " Word added in banlist !");
 		std::cout << "Word added in banlist !" << std::endl;
 
 		std::ofstream outfile(filename.c_str(), std::ios::app);
@@ -263,11 +292,11 @@ void Bot::removeBannedWord(const std::string& word, const std::string& filename)
 		std::set<std::string>::iterator it = banned.find(words);
 		if (it == banned.end())
 		{
-			send_command("PRIVMSG #" + nick + " Word absent from banlist !");
+			sendCommand("PRIVMSG #" + nick + " Word absent from banlist !");
 			std::cout << "Word absent form banlist !" << std::endl;
 			return;
 		}
-		send_command("PRIVMSG #" + nick + " Word removed from banlist !");
+		sendCommand("PRIVMSG #" + nick + " Word removed from banlist !");
 		std::cout << "Word removed from banlist !" << std::endl;
 
 		banned.erase(it);
@@ -289,14 +318,34 @@ void Bot::removeBannedWord(const std::string& word, const std::string& filename)
 
 void Bot::displayBanlist(const std::string& filename)
 {
-    std::set<std::string> banned = loadBanWordsFromFile(filename);
-    std::set<std::string>::iterator it = banned.begin();
+	std::set<std::string> banned = loadBanWordsFromFile(filename);
+	std::set<std::string>::iterator it = banned.begin();
 
-    while (it != banned.end())
-    {
-        std::cout << *it << std::endl;
-        send_command("PRIVMSG #" + nick + " " + *it);
-        it++;
-    }
-    return;
+	while (it != banned.end())
+	{
+		std::cout << *it << std::endl;
+		sendCommand("PRIVMSG #" + nick + " " + *it);
+		it++;
+	}
+	return;
+}
+
+void Bot::rollDice(const std::string& msg)
+{
+	size_t pos = msg.find("ROLL");
+	std::ostringstream res;
+	std::string sub = "ROLL";
+	std::string after = msg.substr(pos + sub.length());
+	std::istringstream iss(after);
+
+	std::srand(std::time(NULL));
+	int nbr = 0;
+	iss >> nbr;
+	if (nbr <= 0 || nbr > 1000)
+		return ;
+	int roll = rand() % nbr + 1;
+	res << roll;
+	std::string finalroll = res.str();
+	sendCommand("PRIVMSG #" + nick + " You rolled a " + finalroll +".");
+	std::cout << "You rolled a " + finalroll +"." << std::endl;
 }
