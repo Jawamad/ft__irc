@@ -52,6 +52,7 @@ Server::~Server()
 		close(it->first);
 	}
 	_clients.clear();
+	_channels.clear();
 }
 
 Server::Server(const Server &obj)
@@ -127,6 +128,7 @@ void	Server::addChannel(std::string chanName)
 }
 void	Server::delChannel(std::string chanName)
 {
+	delete (_channels[chanName]);
 	_channels.erase(chanName);
 }
 void	Server::delClient(int fd)
