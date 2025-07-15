@@ -3,19 +3,15 @@
 Channel::Channel() : _inviteOnly(false) {}
 Channel::Channel(const std::string &name) : _name(name), _inviteOnly(false), _topicOperatorOnly(false), _accessPwdOnly(false), _hasUserLimit(false)
 {
-	time_t now = time(0);
-	char buf[128];
-	strftime(buf, sizeof(buf), "This server was created %a %b %d %Y at %H:%M:%S UTC", gmtime(&now));
-	_creationTime = buf;
+	time_t now = std::time(NULL);
+	_creationTime = now;
 }
 Channel::Channel(const Channel& obj)
 {
 	*this = obj;
 }
-Channel::~Channel()
-{
-	std::cout << "test channel" << std::endl;
-}
+Channel::~Channel() {}
+
 Channel& Channel::operator=(const Channel& obj)
 {
 	if (this != &obj)
@@ -57,7 +53,7 @@ int Channel::getUserLimit() const
 	return _userLimit;
 }
 
-const std::string& Channel::getCreationTime() const
+time_t Channel::getCreationTime() const
 {
 	return _creationTime;
 }

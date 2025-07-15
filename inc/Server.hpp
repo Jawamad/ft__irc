@@ -61,9 +61,6 @@ class Server
 		// operator
 		Client*	findClientByNickname(const std::string& nickname);
 		Client*	findClientByFd(int clientFd);
-		
-		// MODE
-		void	invitationToAccess(int guestFd, int clientFd, const std::string &channelName);
 
 		// utils
 		void errorMessage(Client* client, const std::string& code, const std::string& command, const std::string& message);

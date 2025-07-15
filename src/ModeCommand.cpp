@@ -11,7 +11,7 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 	args >> channelName >> modeLetter >> modeValue;
 
 	// test ::: OK ✅ 
-	if(channelName.empty() || modeLetter.empty())
+	if(channelName.empty()/*  || modeLetter.empty() */)
 	{
 		server.errorMessage(client, "461", "MODE", "Not enough parameters");	
 		return;
@@ -20,14 +20,37 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 	if (channelName[0] != '#')
 		channelName = '#' + channelName;
 
+
 	// test ::: OK ✅ 
 	if (!server.hasChannel(channelName))
 	{
 		server.errorMessage(client, "403", "MODE", "No such channel");
 		return;
 	}
-
+	
 	Channel* channel = server.getChan(channelName); 
+	
+	if (modeLetter.empty() && modeValue.empty())
+	{
+		std::string modes = "+";
+		if (channel->isInviteOnly())
+			modes += "i";
+		if (channel->topicIsOperatorModOnly())
+			modes += "t";
+		if (channel->isPasswordOnly())
+			modes += "k";
+		if (channel->isLimitedNbUser())
+			modes += "l";
+
+		std::string rplMode = ":" + server.getName() + " 324 " + client->getNickname() + " " + channelName + " " + modes + "\r\n";
+		send(client->getSocketFd(), rplMode.c_str(), rplMode.size(), 0);
+
+		std::ostringstream oss;
+		oss << ":" << server.getName() << " 329 " << client->getNickname() << " " << channelName << " " << channel->getCreationTime() << "\r\n";
+		std::string rplCreationTime = oss.str();
+		send(client->getSocketFd(), rplCreationTime.c_str(), rplCreationTime.size(), 0);
+		return;
+	}
 
 	// test ::: OK ✅ 
 	if (!channel->hasClient(client->getSocketFd()))

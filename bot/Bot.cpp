@@ -114,9 +114,9 @@ void	Bot::online()
 			addBannedWord(toBan, "bot/banlist.txt");
 		}
 		if (msg.find("BANLIST") != std::string::npos)
-        {
-            displayBanlist("bot/banlist.txt");
-        }
+		{
+			displayBanlist("bot/banlist.txt");
+		}
 		else
 			containsBannedWord(msg, "bot/banlist.txt");
 	}
@@ -289,14 +289,14 @@ void Bot::removeBannedWord(const std::string& word, const std::string& filename)
 
 void Bot::displayBanlist(const std::string& filename)
 {
-    std::set<std::string> banned = loadBanWordsFromFile(filename);
-    std::set<std::string>::iterator it = banned.begin();
+	std::set<std::string> banned = loadBanWordsFromFile(filename);
+	std::set<std::string>::iterator it = banned.begin();
 
-    while (it != banned.end())
-    {
-        std::cout << *it << std::endl;
-        send_command("PRIVMSG #" + nick + " " + *it);
-        it++;
-    }
-    return;
+	while (it != banned.end())
+	{
+		std::cout << *it << std::endl;
+		send_command("PRIVMSG #" + nick + " " + *it);
+		it++;
+	}
+	return;
 }

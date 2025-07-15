@@ -371,7 +371,7 @@ void Server::serverMessage(Client* client, std::string errorCode,  const std::st
 	std::string err = ":PIRC " + errorCode + " " + client->getNickname() + " :" + errorMsg + "\r\n";
 	send(client->getSocketFd(), err.c_str(), err.size(), 0);
 }
-// ;essqge d erreur aui fonctionne
+
 void Server::errorMessage(Client* client, const std::string& code, const std::string& command, const std::string& message)
 {
 	std::string err = ":PIRC " + code + " " + client->getNickname() + " " + command + " :" + message + "\r\n";
