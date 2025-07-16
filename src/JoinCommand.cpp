@@ -30,13 +30,7 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 	else
 	{
 		channel = channels[channelName];
-<<<<<<< HEAD
-		// Vérifie si le canal est plein
-		if (channel->isLimitedNbUser() && channel->getClientCount() >= channel->getUserLimit())
-		{
-=======
 		if (channel->isLimitedNbUser() && channel->getClientCount() >= channel->getUserLimit()) {
->>>>>>> op
 			server.serverMessage(client, "471", "JOIN :Cannot join channel (+l)");
 			return;
 		}

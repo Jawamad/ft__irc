@@ -11,12 +11,7 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	args >> channelName >> modeLetter >> modeValue;
 
-<<<<<<< HEAD
-	// test ::: OK ✅ 
-	if(channelName.empty()/*  || modeLetter.empty() */)
-=======
 	if(channelName.empty() || modeLetter.empty())
->>>>>>> op
 	{
 		server.errorMessage(client, "461", "MODE", "Not enough parameters");	
 		return;
@@ -25,11 +20,6 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 	if (channelName[0] != '#')
 		channelName = '#' + channelName;
 
-<<<<<<< HEAD
-
-	// test ::: OK ✅ 
-=======
->>>>>>> op
 	if (!server.hasChannel(channelName))
 	{
 		server.errorMessage(client, "403", "MODE", "No such channel");
