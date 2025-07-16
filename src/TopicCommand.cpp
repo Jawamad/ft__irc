@@ -20,22 +20,19 @@ void TopicCommand::execute(Server &server, Client *client, std::istringstream &a
 	 	channelName = '#' + channelName;
 
 	Channel* channel = server.getChan(channelName);
-	
-	// test ::: OK ✅
+
 	if (!channel)
 	{
 		server.errorMessage(client, "403", "TOPIC", "No such channel");
 		return;
 	}
 
-	// test ::: OK ✅
 	if (!channel->searchMember(client->getNickname()))
 	{
 		server.errorMessage(client, "442", channelName, "You're not on that channel");
 		return;
 	}
 
-	// test ::: OK ✅
 	if (newTopic.empty() || newTopic == " ")
 	{
 		if (channel->getTopic().empty())
@@ -56,7 +53,6 @@ void TopicCommand::execute(Server &server, Client *client, std::istringstream &a
 		return;
 	}
 
-	// test ::: OK ✅
 	channel->setTopic(newTopic);
 	std::string msg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp()
 		+ " TOPIC " + channelName + " :" + newTopic + "\r\n";
