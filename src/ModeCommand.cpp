@@ -1,6 +1,7 @@
 #include "../inc/ModeCommand.hpp"
 #include "../inc/Server.hpp"
 #include <cstdlib>
+#include <algorithm>
 
 void ModeCommand::execute(Server &server, Client *client, std::istringstream &args)
 {
@@ -38,7 +39,8 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	// test ::: OK ✅ 
 	if (modeLetter != "+i" && modeLetter != "-i" && modeLetter != "+t" && modeLetter != "-t"
-		&& modeLetter != "+k" && modeLetter != "-k" && modeLetter != "+l" && modeLetter != "-l")
+		&& modeLetter != "+k" && modeLetter != "-k" && modeLetter != "+l" && modeLetter != "-l"
+		&& modeLetter != "+o" && modeLetter != "-o"	)
 	{
 		server.errorMessage(client, "421", "MODE", "Unknown command");
 		return;
@@ -113,6 +115,19 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		channel->setUserLimit(0);
 		channel->broadcast(response, -1);
 	}
+
+	// else if (modeLetter == "+o")
+	// {
+	// 	channel->addOperator(target->getSocketFd());
+	// }
+
+	// else if (modeLetter == "+o")
+	// {
+	// 	std::cout << "REMOVE OPERATOR" << std::endl;
+	// 	channel->removeOperator(target->getSocketFd());
+	// }
+
+
 	else if (modeLetter == "+o" || modeLetter == "-o")
 	{
 		Client* target = server.findClientByNickname(modeValue);
@@ -129,14 +144,27 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		}
 
 		if (modeLetter == "+o")
+		{
+			std::cout << "ADD OPERATOR" << std::endl;
 			channel->addOperator(target->getSocketFd());
+		}
 		else
+		{
+			std::cout << "REMOVE OPERATOR" << std::endl;
 			channel->removeOperator(target->getSocketFd());
+		}
 
+		// Nettoyage du nickname cible
+		std::string targetNick = target->getNickname();
+		targetNick.erase(targetNick.find_last_not_of("\r\n") + 1);
+
+		// Construction du message MODE
 		std::string response = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp()
-			+ " MODE " + channelName + " " + modeLetter + " " + target->getNickname() + "\r\n";
+			+ " MODE " + channelName + " " + modeLetter + " " + targetNick + "\r\n";
 
-		// Envoie à tous
+		channel->broadcast(response, -1);
+
+		Envoi du message à tous les membres du canal
 		const std::map<int, Client*>& members = channel->getClients();
 		for (std::map<int, Client*>::const_iterator it = members.begin(); it != members.end(); ++it)
 		{
@@ -144,30 +172,6 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		}
 	}
 
-
-	// else if (modeLetter == "+o" || modeLetter == "-o")
-	// {
-
-	// 	Client* target = server.findClientByNickname(modeValue);
-	// 	if (!target)
-	// 	{
-	// 		server.errorMessage(client, "401", "MODE", "No such nick");
-	// 		return;
-	// 	}
-
-	// 	if (!channel->hasClient(target->getSocketFd()))
-	// 	{
-	// 		server.errorMessage(client, "441", modeValue + " " + channelName, "They aren't on that channel");
-	// 		return;
-	// 	}
-
-	// 	if (modeLetter == "+o")
-	// 		channel->addOperator(target->getSocketFd());
-	// 	else
-	// 		channel->removeOperator(target->getSocketFd());
-
-	// 	channel->broadcast(response, -1);
-	// }
 	else
 	{
 		server.serverMessage(client, "472", modeLetter + "MODE :is unknown mode char to me");
