@@ -11,7 +11,6 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	args >> channelName >> modeLetter >> modeValue;
 
-	// test ::: OK ✅ 
 	if(channelName.empty() || modeLetter.empty())
 	{
 		server.errorMessage(client, "461", "MODE", "Not enough parameters");	
@@ -21,7 +20,6 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 	if (channelName[0] != '#')
 		channelName = '#' + channelName;
 
-	// test ::: OK ✅ 
 	if (!server.hasChannel(channelName))
 	{
 		server.errorMessage(client, "403", "MODE", "No such channel");
@@ -30,14 +28,12 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	Channel* channel = server.getChan(channelName); 
 
-	// test ::: OK ✅ 
 	if (!channel->hasClient(client->getSocketFd()))
 	{
 		server.errorMessage(client, "442", "MODE", "You're not on that channel");
 		return;
 	}
 
-	// test ::: OK ✅ 
 	if (modeLetter != "+i" && modeLetter != "-i" && modeLetter != "+t" && modeLetter != "-t"
 		&& modeLetter != "+k" && modeLetter != "-k" && modeLetter != "+l" && modeLetter != "-l"
 		&& modeLetter != "+o" && modeLetter != "-o"	)
@@ -46,7 +42,6 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		return;
 	}
 
-	// test ::: OK ✅
 	if (!channel->isOperator(client->getSocketFd()))
 	{
 		server.errorMessage(client, "482", "MODE", "You're not channel operator");
@@ -58,13 +53,12 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		response += " " + modeValue;
 	response += "\r\n";
 
-	// test ::: OK ✅
 	if (modeLetter == "+i")
 	{
 		channel->setInviteOnly(true);
 		channel->broadcast(response, -1);
 	}
-	// test ::: OK ✅
+
 	else if (modeLetter == "-i")
 	{
 		channel->setInviteOnly(false);
@@ -80,7 +74,7 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		channel->setTopicStatus(false);
 		channel->broadcast(response, -1);
 	}
-	// test ::: OK ✅
+
 	else if (modeLetter == "+k")
 	{
 		channel->setPasswordStatus(true);
@@ -88,14 +82,14 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		std::cout << "key mode ON" << std::endl;
 		channel->broadcast(response, -1);
 	}
-	// test ::: OK ✅
+
 	else if (modeLetter == "-k")
 	{
 		channel->setPasswordStatus(false);
 		channel->setChanPassword("");
 		channel->broadcast(response, -1);
 	}
-	// test ::: OK ✅
+
 	else if (modeLetter == "+l")
 	{
 		int userLimit = std::atoi(modeValue.c_str());
@@ -108,25 +102,13 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		channel->setUserLimit(userLimit);
 		channel->broadcast(response, -1);
 	}
-	// test ::: OK ✅
+
 	else if (modeLetter == "-l")
 	{
 		channel->setLimitedNbUser(false);
 		channel->setUserLimit(0);
 		channel->broadcast(response, -1);
 	}
-
-	// else if (modeLetter == "+o")
-	// {
-	// 	channel->addOperator(target->getSocketFd());
-	// }
-
-	// else if (modeLetter == "+o")
-	// {
-	// 	std::cout << "REMOVE OPERATOR" << std::endl;
-	// 	channel->removeOperator(target->getSocketFd());
-	// }
-
 
 	else if (modeLetter == "+o" || modeLetter == "-o")
 	{
@@ -144,27 +126,18 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		}
 
 		if (modeLetter == "+o")
-		{
-			std::cout << "ADD OPERATOR" << std::endl;
 			channel->addOperator(target->getSocketFd());
-		}
 		else
-		{
-			std::cout << "REMOVE OPERATOR" << std::endl;
 			channel->removeOperator(target->getSocketFd());
-		}
 
-		// Nettoyage du nickname cible
 		std::string targetNick = target->getNickname();
 		targetNick.erase(targetNick.find_last_not_of("\r\n") + 1);
 
-		// Construction du message MODE
 		std::string response = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp()
 			+ " MODE " + channelName + " " + modeLetter + " " + targetNick + "\r\n";
 
 		channel->broadcast(response, -1);
 
-		Envoi du message à tous les membres du canal
 		const std::map<int, Client*>& members = channel->getClients();
 		for (std::map<int, Client*>::const_iterator it = members.begin(); it != members.end(); ++it)
 		{
@@ -177,8 +150,3 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		server.serverMessage(client, "472", modeLetter + "MODE :is unknown mode char to me");
 	}
 }
-
-//RPL_CHANNELMODEIS(324)
-//RPL_CREATIONTIME (329)
-// si user = âs de broadcast
-// si mode besoin de params mais y en a pas --> on ignore

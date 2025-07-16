@@ -22,15 +22,12 @@ Channel& Channel::operator=(const Channel& obj)
 	{
 		_name = obj._name;
 		_clients = obj._clients;
-		// _clients = obj._clients;
-		// _operators = obj._operators;
 		_inviteOnly = obj._inviteOnly; 
 		_topicOperatorOnly = obj._topicOperatorOnly;
 	}
 	return *this;
 }
 
-/// GETTERS ///////// 
 const std::string&	Channel::getName() const
 {
 	return _name;
@@ -46,7 +43,6 @@ const std::string&	Channel::getTopic() const
 	return _topic;
 }
 
-
 const std::map<int, Client*>&	Channel::getClients()const
 {
 	return _clients;
@@ -61,11 +57,10 @@ const std::string& Channel::getCreationTime() const
 {
 	return _creationTime;
 }
-/// SETTERS  ///////////
 
 void Channel::setUserLimit(int limit) {
 	_userLimit = limit;
-}
+ }
 
 void  Channel::setTopic(const std::string &topic)
 {
@@ -77,9 +72,6 @@ void  Channel::setChanPassword(const std::string &chanPassword)
 	this->_chanPassword = chanPassword;
 }
 
-///////////////////////////////////////
-
-
 bool Channel::isInviteOnly() const {
 	return _inviteOnly;
 }
@@ -87,8 +79,6 @@ bool Channel::isInviteOnly() const {
 void Channel::setInviteOnly(bool status) {
 	_inviteOnly = status;
 }
-
-///////////////////////////////////////
 
 bool Channel::topicIsOperatorModOnly()  const {
 	return _topicOperatorOnly ;
@@ -98,8 +88,6 @@ void Channel::setTopicStatus(bool status) {
 	_topicOperatorOnly = status;
 }
 
-////////////////////////////////////////
-
 bool Channel::isPasswordOnly()  const {
 	return _accessPwdOnly;
 }
@@ -108,20 +96,13 @@ void Channel::setPasswordStatus(bool status) {
 	_accessPwdOnly = status;
 }
 
-///////////////////////////////////////
-
 bool Channel::isLimitedNbUser() const {
 	return _hasUserLimit;
 }
 
-///////////////////////////////////////
-
 void Channel::setLimitedNbUser(bool status) {
 	_hasUserLimit = status;
 }
-
-///////////////////////////////////////
-
 
 void	Channel::addClient(Client* client)
 {
@@ -165,8 +146,6 @@ void Channel::addOperator(int clientFd) {
 	if (hasClient(clientFd))
 	{
 		_operators.insert(clientFd);
-		// int last = *(_operators.rbegin());
-		// std::cout << "Last operator: " << last << std::endl;
 	}
 }
 
@@ -177,14 +156,14 @@ void Channel::removeOperator(int clientFd) {
 
 void Channel::clientGetsKickByOperator(const std::string &nickName, Client &client) 
 {
-	std::cout << "operator " << nickName << " has kick the user " << client.getNickname() << std::endl;
+	//std::cout << "operator " << nickName << " has kick the user " << client.getNickname() << std::endl;
 	removeClient(client.getSocketFd());
 }
 
 
 void Channel::clientGetsInviteByOperator(const std::string &nickName, Client &client) 
 {
-	std::cout << "operator " << nickName << " has invite the user " << client.getNickname() << std::endl;
+	//std::cout << "operator " << nickName << " has invite the user " << client.getNickname() << std::endl;
 	addClient(&client);
 }
 

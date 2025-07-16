@@ -30,7 +30,6 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 	else
 	{
 		channel = channels[channelName];
-		// Vérifie si le canal est plein
 		if (channel->isLimitedNbUser() && channel->getClientCount() >= channel->getUserLimit()) {
 			server.serverMessage(client, "471", "JOIN :Cannot join channel (+l)");
 			return;
@@ -41,7 +40,6 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 			server.serverMessage(client, "473", "JOIN :Cannot join channel (+i)");
 			return;
 		}
-		// MODE k+ password required
 		if (channel->isPasswordOnly())
 		{
 			if (channel->getChanPassword() != channelPassword)
