@@ -1,7 +1,10 @@
 #include "../inc/Server.hpp"
+#include "../inc/Client.hpp"
+#include "../inc/Channel.hpp"
 #include "../inc/interface.hpp"
 #include <sstream>
-#include <fcntl.h> 
+#include <fcntl.h>
+
 
 volatile sig_atomic_t g_shouldExit = 0;
 

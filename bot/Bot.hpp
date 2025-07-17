@@ -6,24 +6,21 @@
 # include <netdb.h>
 # include <arpa/inet.h>
 # include <cerrno>
-# include <cstdio>
 # include <cstdlib>
 # include <ctime>
 # include <cstring>
-# include <csignal>
 # include <iostream>
-# include <iomanip>
 # include <unistd.h>
 # include <poll.h>
 # include <vector>
 # include <fstream>
-# include <algorithm>
-# include <stdio.h>
 # include <fcntl.h>
 # include <string>
 # include <set>
 # include <sstream>
 # include <cctype>
+# include <stdexcept>
+# include <csignal>
 
 class Bot
 {

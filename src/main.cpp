@@ -1,5 +1,6 @@
 #include "../inc/ircserv.hpp"
 #include "../inc/Server.hpp"
+#include <csignal>
 
 int main(int argc, char **argv)
 {

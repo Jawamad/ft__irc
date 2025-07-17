@@ -2,6 +2,10 @@
 #define SERVER_HPP
 # include "ircserv.hpp"
 
+class Client;
+class Channel;
+class ICommand;
+
 class Server
 {
 	private:

@@ -1,7 +1,9 @@
 #ifndef ICOMMAND_HPP
 # define ICOMMAND_HPP
 
-# include "ircserv.hpp"
+# include <sstream>
+# include "Client.hpp"
+# include "Channel.hpp"
 
 class Server;
 class ICommand

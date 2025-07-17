@@ -1,7 +1,8 @@
-#ifndef CAPCOMMAND_HPP
-# define CAPCOMMAND_HPP
+#ifndef UTILS_HPP
+# define UTILS_HPP
 
-#include "ircserv.hpp"
+#include <string>
+
 std::string intToString(int n);
 
 #endif

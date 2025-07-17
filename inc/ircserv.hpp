@@ -14,9 +14,6 @@
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <cstdio>
-# include "Client.hpp"
-# include "Channel.hpp"
-# include "ICommand.hpp"
 # include <csignal>
 # include <ctime>
 #endif
