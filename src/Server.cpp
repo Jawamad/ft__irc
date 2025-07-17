@@ -1,6 +1,7 @@
 #include "../inc/Server.hpp"
 #include "../inc/interface.hpp"
 #include <sstream>
+#include <fcntl.h> 
 
 volatile sig_atomic_t g_shouldExit = 0;
 
@@ -237,9 +238,7 @@ void	Server::setupSocket()
 		return;
 	}
 
-	// a revoir
-	int opt = 1;
-	if (setsockopt(_serverFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+	if (fcntl(_serverFd, F_SETFL, O_NONBLOCK) < 0)
 	{
 		std::cerr << ":" << this->getName() << " :Server Error: setsockopt" << std::endl;
 		g_shouldExit = 1;
