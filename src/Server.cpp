@@ -211,8 +211,14 @@ void	Server::acceptNewClient()
 		return;
 	}
 
-	std::string ip = inet_ntoa(clientAddr.sin_addr);
+	if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0)
+	{
+		std::cerr << ":" << this->getName() << " Client error fctnl (non-block)" << std::endl;
+		close(clientFd);
+		return;
+	}
 
+	std::string ip = inet_ntoa(clientAddr.sin_addr);
 	_clients[clientFd] = new Client(clientFd, "guest", ip);
 	std::cout << "New client connected : " << ip << " (fd=" << clientFd << ")" << std::endl;
 }
@@ -238,9 +244,17 @@ void	Server::setupSocket()
 		return;
 	}
 
-	if (fcntl(_serverFd, F_SETFL, O_NONBLOCK) < 0)
+	int opt = 1;
+	if (setsockopt(_serverFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
 	{
 		std::cerr << ":" << this->getName() << " :Server Error: setsockopt" << std::endl;
+		g_shouldExit = 1;
+		return;
+	}
+
+	if (fcntl(_serverFd, F_SETFL, O_NONBLOCK) < 0)
+	{
+		std::cerr << ":" << this->getName() << " :Server Error: fcntl" << std::endl;
 		g_shouldExit = 1;
 		return ;
 	}

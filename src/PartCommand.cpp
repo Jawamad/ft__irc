@@ -27,10 +27,10 @@ void PartCommand::execute(Server &server, Client *client, std::istringstream &ar
 		send(client->getSocketFd(), err.c_str(), err.size(), 0);
 		return;
 	}
-	std::string partMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " PART " + channelName + "\r\n";
-
+	std::string partMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " PART " + channelName + ":leaving\r\n";
+	std::cout << partMsg << std::endl;
 	channel->broadcast(partMsg, -1);
-
+	
 	channel->removeClient(client->getSocketFd());
 	if (channel->getClients().empty())
 		server.delChannel(channelName);

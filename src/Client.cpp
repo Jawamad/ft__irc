@@ -33,7 +33,6 @@ Client& Client::operator=(const Client& obj)
 	return *this;
 }
 
-// getters
 int	Client::getSocketFd() const
 {
 	return _socketFd;
