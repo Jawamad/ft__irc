@@ -16,7 +16,7 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 	if (channelName[0] != '#')
 		channelName = '#' + channelName;
 	
-	std::string joinMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " JOIN " + channelName + "\r\n";
+	std::string joinMsg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " JOIN " + channelName + "\r\n";
 	std::map<std::string, Channel*>& channels = server.getChannels();
 	Channel* channel;
 

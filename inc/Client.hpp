@@ -13,11 +13,12 @@ class Client
 		bool		_hasPassedPassword;
 		bool		_hasUser;
 		bool		_hasNick;
-		std::string _ip;
+		std::string _hostname;
+		std::string	_ip;
 		std::string	_buffer;
 	public:
 		Client();
-		Client(int fd, const std::string username, const std::string &ip);
+		Client(int fd, const std::string &hostname, const std::string &ip);
 		Client(const Client& obj);
 		~Client();
 		Client& operator=(const Client& obj);
@@ -29,6 +30,7 @@ class Client
 		const		std::string &getUsername() const;
 		const		std::string &getBuffer() const;
 		std::string	&getBuffer();
+		const		std::string &getHostname() const;
 		bool		isLoggedIn() const;
 		bool		hasPassedPassword() const;
 		bool		hasUser() const;

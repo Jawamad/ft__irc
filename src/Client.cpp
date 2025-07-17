@@ -6,9 +6,9 @@ Client::Client(): _loggedIn(false), _hasPassedPassword(false), _hasUser(false), 
 
 }
 
-Client::Client(int fd, const std::string username, const std::string &ip)
-	: _socketFd(fd), _username(username), _loggedIn(false), _hasPassedPassword(false), _hasUser(false),
-		_hasNick(false), _ip(ip)
+Client::Client(int fd, const std::string &hostname, const std::string &ip)
+	: _socketFd(fd), _nickname(""), _username(""), _loggedIn(false), _hasPassedPassword(false), _hasUser(false),
+		_hasNick(false),_hostname(hostname), _ip(ip), _buffer("")
 {
 }
 
@@ -56,6 +56,10 @@ std::string& Client::getBuffer()
 const std::string& Client::getBuffer() const
 {
 	return _buffer;
+}
+const std::string& Client::getHostname() const
+{
+	return _hostname;
 }
 bool Client::isLoggedIn() const
 {

@@ -11,7 +11,6 @@ OBJS = $(SRCS:$(DIR_SRC)%.cpp=$(DIR_OBJ)%.o)
 
 all: $(NAME)
 
-# 	@mkdir -p "$(dir $@)"
 $(DIR_OBJ)%.o: $(DIR_SRC)%.cpp
 	@if [ ! -d "$(dir $@)" ]; then mkdir -p "$(dir $@)"; fi
 	@$(CC) $(CFLAGS) -c $< -o $@
@@ -42,4 +41,4 @@ fclean: clean
 bonus:
 	@$(MAKE) --no-print-directory -C bot
 
-re: fclean all bonus
+re: fclean all

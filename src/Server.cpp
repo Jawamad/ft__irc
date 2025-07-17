@@ -4,7 +4,8 @@
 #include "../inc/interface.hpp"
 #include <sstream>
 #include <fcntl.h>
-
+#include <netdb.h>
+#include <arpa/inet.h>
 
 volatile sig_atomic_t g_shouldExit = 0;
 
@@ -222,7 +223,11 @@ void	Server::acceptNewClient()
 	}
 
 	std::string ip = inet_ntoa(clientAddr.sin_addr);
-	_clients[clientFd] = new Client(clientFd, "guest", ip);
+
+	struct hostent *host = gethostbyaddr(&clientAddr.sin_addr, sizeof(clientAddr.sin_addr),AF_INET);
+	std::string hostname = host ? std::string(host->h_name) : ip;
+
+	_clients[clientFd] = new Client(clientFd, hostname, ip);
 	std::cout << "New client connected : " << ip << " (fd=" << clientFd << ")" << std::endl;
 }
 void	Server::handleClientMessage(int clientFd)
@@ -321,7 +326,7 @@ void	Server::processClientData(Client* client)
 
 		if (!line.empty())
 		{
-			std::cout << "Message receive from " << client->getIp() << "=" << client->getUsername() << "@" << client->getNickname() << ": " << line << std::endl;
+			std::cout << "Message receive from " << client->getHostname() << "=" << client->getUsername() << "@" << client->getNickname() << ": " << line << std::endl;
 			parseCommand(client, line);
 		}
 	}
@@ -400,7 +405,7 @@ void Server::sendCommandMessage(Client* sender, const std::string& command, cons
 	std::string msg = ":" 
 		+ sender->getNickname() + "!"
 		+ sender->getUsername() + "@"
-		+ sender->getIp()
+		+ sender->getHostname()
 		+ " " + command + " " + params;
 	
 	if (!trailing.empty())

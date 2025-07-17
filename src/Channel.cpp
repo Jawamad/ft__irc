@@ -122,9 +122,13 @@ void	Channel::broadcast( const std::string &message, int senderFd)
 	for (std::map<int, Client*>::const_iterator it = _clients.begin(); it != _clients.end(); ++it)
 	{
 		if (it->first != senderFd)
+		{
 			send(it->first, message.c_str(), message.length(), 0);
+			std::cout << "Message send to " << it->second->getNickname() << " by broadcast! Message:" << message;
+		}
 	}
 }
+
 int	Channel::getClientCount() const
 {
 	return _clients.size();
