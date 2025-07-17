@@ -67,7 +67,7 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		return;
 	}
 
-	std::string response = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " MODE " + channelName + " " + modeLetter;
+	std::string response = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MODE " + channelName + " " + modeLetter;
 	if (!modeValue.empty())
 		response += " " + modeValue;
 	response += "\r\n";
@@ -152,7 +152,7 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 		std::string targetNick = target->getNickname();
 		targetNick.erase(targetNick.find_last_not_of("\r\n") + 1);
 
-		std::string response = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp()
+		std::string response = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname()
 			+ " MODE " + channelName + " " + modeLetter + " " + targetNick + "\r\n";
 
 		channel->broadcast(response, -1);

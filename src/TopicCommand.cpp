@@ -54,7 +54,7 @@ void TopicCommand::execute(Server &server, Client *client, std::istringstream &a
 	}
 
 	channel->setTopic(newTopic);
-	std::string msg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp()
+	std::string msg = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname()
 		+ " TOPIC " + channelName + " :" + newTopic + "\r\n";
 
 	channel->broadcast(msg, -1);
