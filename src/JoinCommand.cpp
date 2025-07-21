@@ -22,10 +22,10 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	if (channels.find(channelName) == channels.end())
 	{
-		channels[channelName] = new Channel(channelName);
-		channel = channels[channelName];
-		channels[channelName]->addClient(client);
-		channels[channelName]->addOperator(client->getSocketFd());
+		channel  = new Channel(channelName);
+		channels[channelName] = channel;
+		channel->addClient(client);
+		channel->addOperator(client->getSocketFd());
 	}
 	else
 	{
@@ -47,27 +47,26 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 				server.serverMessage(client, "475", "JOIN :Cannot join channel (+k)");
 				return;
 			}
-		} 
+		}
 		channel->addClient(client);
-		server.getChan(channelName)->broadcast(joinMsg, -1);
 	}
+	server.getChan(channelName)->broadcast(joinMsg, -1);
 
-
-	std::string namesList;
 	std::map<int, Client*> members = server.getChan(channelName)->getClients();
+	std::string namesList;
 	for (std::map<int, Client*>::iterator it = members.begin(); it != members.end(); ++it)
 	{
 		if (!it->second->getNickname().empty())
 		{
+			if (!namesList.empty())
+				namesList += " ";
 			if (channels[channelName]->isOperator(it->second->getSocketFd()))
 				namesList += "@";
-			namesList += it->second->getNickname() + " ";
+			namesList += it->second->getNickname();
 		}
 	}
-	if (!namesList.empty() && namesList[namesList.size() - 1] == ' ')
-		namesList.erase(namesList.size() - 1);
-	std::string rplNames = ":server 353 " + client->getNickname() + " = " + channelName + " :" + namesList + "\r\n";
-	std:: string rplEndNames = ":server 366 " + client->getNickname() + " " + channelName + " :End of /NAMES list\r\n";
+	std::string rplNames = ":" + server.getName() + " 353 " + client->getNickname() + " = " + channelName + " :" + namesList + "\r\n";
+	std:: string rplEndNames = ":" + server.getName() + " 366 " + client->getNickname() + " " + channelName + " :End of /NAMES list\r\n";
 	send(client->getSocketFd(), rplNames.c_str(), rplNames.size(), 0);
 	send(client->getSocketFd(), rplEndNames.c_str(), rplEndNames.size(), 0);
 }
