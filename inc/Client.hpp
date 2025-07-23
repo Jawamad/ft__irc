@@ -6,16 +6,18 @@ class Server;
 class Client
 {
 	private:
-		int			_socketFd;
-		std::string	_nickname;
-		std::string	_username;
-		bool		_loggedIn;
-		bool		_hasPassedPassword;
-		bool		_hasUser;
-		bool		_hasNick;
-		std::string _hostname;
-		std::string	_ip;
-		std::string	_buffer;
+		int						_socketFd;
+		std::string				_nickname;
+		std::string				_username;
+		bool					_loggedIn;
+		bool					_hasPassedPassword;
+		bool					_hasUser;
+		bool					_hasNick;
+		std::string				_hostname;
+		std::string				_ip;
+		std::string				_buffer;
+		std::set<std::string>	_invitedChannel;
+
 	public:
 		Client();
 		Client(int fd, const std::string &hostname, const std::string &ip);
@@ -51,6 +53,9 @@ class Client
 
 		//other
 		void	logRoutine(Server& server);
+
+		void	addInvitedList(std::string chan);
+		void	delInvitedList(std::string chan);
 };
 
 #endif

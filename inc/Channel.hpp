@@ -14,6 +14,7 @@ class Channel
 		time_t					_creationTime;
 		std::map<int, Client*>	_clients;
 		std::set<int>			_operators;
+		std::set<int>			_inviteList;
 
 		// MODE 
 		bool			_inviteOnly;
@@ -55,7 +56,6 @@ class Channel
 		bool	isLimitedNbUser() const;
 		void	setUserLimit(int limit);
 
-		//
 
 		void	addClient(Client* client);
 
@@ -73,6 +73,9 @@ class Channel
 		void	clientGetsKickByOperator(const std::string &nickName, Client &client);
 		void	clientGetsInviteByOperator(const std::string &nickName, Client &client); 
 		Client*	searchMember(const std::string& nickname) const;
+
+		bool	isInvite(Client *client);
+		void	delInviteList(Client *client);
 };
 
 #endif
