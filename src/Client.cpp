@@ -91,7 +91,6 @@ void Client::clearBuffer()
 	_buffer.clear();
 }
 
-// Network
 bool Client::receiveMessage()
 {
 	char buffer[512];

@@ -158,7 +158,6 @@ void Channel::removeOperator(int clientFd) {
 void Channel::clientGetsKickByOperator(const std::string &nickName, Client &client) 
 {
 	(void) nickName;
-	//std::cout << "operator " << nickName << " has kick the user " << client.getNickname() << std::endl;
 	removeClient(client.getSocketFd());
 }
 
@@ -166,7 +165,6 @@ void Channel::clientGetsKickByOperator(const std::string &nickName, Client &clie
 void Channel::clientGetsInviteByOperator(const std::string &nickName, Client &client) 
 {
 	(void) nickName;
-	//std::cout << "operator " << nickName << " has invite the user " << client.getNickname() << std::endl;
 	addClient(&client);
 }
 

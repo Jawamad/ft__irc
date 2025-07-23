@@ -20,8 +20,8 @@ class Server
 		fd_set								_readFds;
 		int									_maxFd;
 		std::map<std::string, ICommand *>	_commands;
-		Server();
 
+		Server();
 		void	setupSocket();
 		void	updateFdSet();
 		void	processClientData(Client* client);
@@ -33,7 +33,6 @@ class Server
 		Server &operator=(const Server &obj);
 		~Server();
 
-		// Getters
 		int											getServerFd() const;
 		int											getPort();
 		const	std::string							&getPassword() const;
@@ -55,18 +54,15 @@ class Server
 		bool	hasClient(int fd);
 		Client*	getClientByNick(std::string nickname);
 
-		// server setup
 		bool	start();
 		void	run();
 		void	acceptNewClient();
 		void	handleClientMessage(int clientFd);
 		void	removeClient(int clientFd);
 
-		// operator
 		Client*	findClientByNickname(const std::string& nickname);
 		Client*	findClientByFd(int clientFd);
 
-		// utils
 		void errorMessage(Client* client, const std::string& code, const std::string& command, const std::string& message);
 		void serverMessage(Client* client, std::string errorCode,  const std::string& errorMsg);
 		void sendCommandMessage(Client* sender, const std::string& command, const std::string& params, const std::string& trailing);

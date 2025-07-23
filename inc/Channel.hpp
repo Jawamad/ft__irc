@@ -37,39 +37,25 @@ class Channel
 		int								getUserLimit() const;
 		time_t							getCreationTime() const;
 
-		//
 		void	setTopic(const std::string &topic);
 		void	setChanPassword(const std::string &chanPassword);
-
-		// MODE
 		bool	isInviteOnly() const;
 		void	setInviteOnly(bool status);
-
 		bool	topicIsOperatorModOnly() const;
 		void	setTopicStatus(bool status);
-
 		bool	isPasswordOnly() const;
 		void	setPasswordStatus(bool status);
-
 		void 	setLimitedNbUser(bool status);
 		bool	isLimitedNbUser() const;
 		void	setUserLimit(int limit);
-
-		//
-
 		void	addClient(Client* client);
-
-		//void	getClientbyFd(int clientFd);
 		void	removeClient(int clientFd);
 		bool	hasClient(int clientFd) const;
 		void	broadcast( const std::string &message, int senderFd);
 		int		getClientCount() const;
-
 		bool	isOperator(int clientFd) const;
 		void	addOperator(int clientFd);
 		void	removeOperator(int clientFd);
-
-		// operator
 		void	clientGetsKickByOperator(const std::string &nickName, Client &client);
 		void	clientGetsInviteByOperator(const std::string &nickName, Client &client); 
 		Client*	searchMember(const std::string& nickname) const;

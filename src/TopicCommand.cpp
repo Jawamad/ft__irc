@@ -1,8 +1,6 @@
 #include "../inc/TopicCommand.hpp"
 #include "../inc/Server.hpp"
 
-// verif tout est ok !
-
 void TopicCommand::execute(Server &server, Client *client, std::istringstream &args)
 {
 	std::string channelName;

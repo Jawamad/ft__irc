@@ -15,10 +15,9 @@ void ListCommand::execute(Server &server, Client *client, std::istringstream &ar
 		Channel* chan = it->second;
 		std::string chanName = chan->getName();
 		int userCount = chan->getClientCount();
-		//a ajouter quand les topics seront gerer
-		//std::string topic = chan->getTopic();
+		std::string topic = chan->getTopic();
 		
-		std::string line = ":server 322 " + client->getNickname() + " " + chanName + " " + intToString(userCount) + " : topic a ajouter\r\n";
+		std::string line = ":server 322 " + client->getNickname() + " " + chanName + " " + intToString(userCount) + " : " + topic + "\r\n";
 		send(client->getSocketFd(), line.c_str(), line.size(), 0);
 	}
 	std::string footer = ":server 323 " + client->getNickname() + " :End of /LIST\r\n";
