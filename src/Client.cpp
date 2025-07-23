@@ -150,3 +150,16 @@ void	Client::logRoutine(Server& server)
 		server.serverMessage(this, "422", "MOTD File is missing");
 	}
 }
+
+void	Client::addInvitedList(std::string chan)
+{
+	this->_invitedChannel.insert(chan);
+}
+
+void	Client::delInvitedList(std::string chan)
+{
+	std::set<std::string>::iterator it = this->_invitedChannel.find(chan);
+	if (it == this->_invitedChannel.end())
+		return;
+	this->_invitedChannel.erase(chan);
+}

@@ -165,7 +165,8 @@ void Channel::clientGetsKickByOperator(const std::string &nickName, Client &clie
 void Channel::clientGetsInviteByOperator(const std::string &nickName, Client &client) 
 {
 	(void) nickName;
-	addClient(&client);
+	_inviteList.insert(client.getSocketFd());
+	client.addInvitedList(this->_name);
 }
 
 Client* Channel::searchMember(const std::string& nickname) const
@@ -179,4 +180,19 @@ Client* Channel::searchMember(const std::string& nickname) const
 		}
 	}
 	return NULL;
+}
+
+bool Channel::isInvite(Client *client)
+{
+	if (_inviteList.find(client->getSocketFd()) == _inviteList.end())
+		return false;
+	return true;
+}
+
+void	Channel::delInviteList(Client *client)
+{
+	std::set<int>::iterator it = this->_inviteList.find(client->getSocketFd());
+	if (it == this->_inviteList.end())
+		return;
+	this->_inviteList.erase(client->getSocketFd());
 }

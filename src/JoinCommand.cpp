@@ -35,7 +35,7 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 			return;
 		}
 		
-		if (channel->isInviteOnly())
+		if (channel->isInviteOnly() && !channel->isInvite(client))
 		{
 			server.serverMessage(client, "473", "JOIN :Cannot join channel (+i)");
 			return;
@@ -50,6 +50,8 @@ void JoinCommand::execute(Server &server, Client *client, std::istringstream &ar
 		}
 		channel->addClient(client);
 	}
+	client->delInvitedList(channelName);
+	channel->delInviteList(client);
 	server.getChan(channelName)->broadcast(joinMsg, -1);
 
 	std::map<int, Client*> members = server.getChan(channelName)->getClients();

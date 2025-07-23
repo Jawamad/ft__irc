@@ -14,6 +14,11 @@ void QuitCommand::execute(Server &server, Client *client, std::istringstream &ar
 	for (std::map<std::string, Channel*>::iterator it = channels.begin(); it != channels.end(); ++it)
 	{
 		Channel* chan = it->second;
+		if (chan->isInvite(client))
+		{
+			client->delInvitedList(chan->getName());
+			chan->delInviteList(client);
+		}
 		if (chan->hasClient(client->getSocketFd()))
 		{
 			chan->broadcast(msg, client->getSocketFd());

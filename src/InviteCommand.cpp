@@ -5,11 +5,12 @@ void InviteCommand::execute(Server &server, Client *client, std::istringstream &
 {
 	std::string channelName;
 	std::string clientToInvite;
-	args >> channelName >> clientToInvite;
+	args >> clientToInvite >> channelName;
 
-	if(channelName.empty() || clientToInvite.empty())
+	if (channelName.empty() || clientToInvite.empty())
 	{
 		server.errorMessage(client, "461", "INVITE", "Not enough parameters");
+		return;
 	}
 
 	if (channelName[0] != '#')
@@ -31,13 +32,13 @@ void InviteCommand::execute(Server &server, Client *client, std::istringstream &
 
 	if (channel->searchMember(clientToInvite))
 	{
-		server.errorMessage(client, "443", "INVITE", "is already on channel");
+		server.errorMessage(client, "443", clientToInvite, "is already on channel");
 		return;
 	}
 
 	if (!channel->isOperator(client->getSocketFd()))
 	{
-		server.errorMessage(client, "482", "INVITE", "You're not channel operator");
+		server.errorMessage(client, "482", channelName, "You're not channel operator");
 		return;
 	}
 
@@ -50,11 +51,12 @@ void InviteCommand::execute(Server &server, Client *client, std::istringstream &
 
 	channel->clientGetsInviteByOperator(client->getNickname(), *clientToInvitePtr);
 
-	std::string msgSendNumber = clientToInvitePtr->getNickname() + " " + channelName;
-	server.sendNumericReply(client, 341, msgSendNumber, "");
+	server.sendNumericReply(client, 341, clientToInvite + " " + channelName, "");
 
-	server.sendCommandMessage(client, "INVITE", clientToInvitePtr->getNickname() , channelName);
+	std::string inviteMsg = ":" + client->getNickname() + "!" +
+		client->getUsername() + "@" + client->getIp() +
+		" INVITE " + clientToInvite + " " + channelName + "\r\n";
 
-	std::string inviteMsg = "invite";
 	send(clientToInvitePtr->getSocketFd(), inviteMsg.c_str(), inviteMsg.size(), 0);
 }
+

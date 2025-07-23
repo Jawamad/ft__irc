@@ -21,9 +21,6 @@ Bot::Bot(bool *sig, std::string addr, int port, std::string pass, std::string ni
 	if (connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0)
 		throw std::runtime_error("connect() failed");
 	freeaddrinfo(servinfo);
-	int flags = fcntl(sock, F_GETFL, 0);
-	fcntl(sock, F_SETFL, flags | O_NONBLOCK);
-
 }
 
 Bot::~Bot()
@@ -60,7 +57,7 @@ void	Bot::online()
 			send_command("NICK " + nick);
 			send_command("USER " + nick + " " + nick + " " + addr + " :" + nick);
 			serv_response();
-			
+
 			std::string msg = messages.front();
 			messages.erase(messages.begin());
 			if (msg.find("433") != std::string::npos)
@@ -93,9 +90,9 @@ void	Bot::online()
 		messages.erase(messages.begin());
 		if (msg.empty())
 			continue;
-		if (msg.find("TIME") != std::string::npos)
+		else if (msg.find("TIME") != std::string::npos)
 			print_current_time();
-		if (msg.find("RBANWORD") != std::string::npos)
+		else if (msg.find("RBANWORD") != std::string::npos)
 		{
 			std::string toBan = msg.substr(std::string("RBANWORD").length());
 			while (!toBan.empty() && toBan[0] == ' ')
@@ -104,7 +101,7 @@ void	Bot::online()
 				continue;
 			removeBannedWord(toBan, "bot/banlist.txt");
 		}
-		if (msg.find("ABANWORD") != std::string::npos)
+		else if (msg.find("ABANWORD") != std::string::npos)
 		{
 			std::string toBan = msg.substr(std::string("ABANWORD").length());
 			while (!toBan.empty() && toBan[0] == ' ')
@@ -113,7 +110,7 @@ void	Bot::online()
 			continue;
 			addBannedWord(toBan, "bot/banlist.txt");
 		}
-		if (msg.find("BANLIST") != std::string::npos)
+		else if (msg.find("BANLIST") != std::string::npos)
 		{
 			displayBanlist("bot/banlist.txt");
 		}
