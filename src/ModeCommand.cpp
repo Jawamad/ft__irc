@@ -96,10 +96,10 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 
 	else if (modeLetter == "+k")
 	{
+		std::string responsePwd = ":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MODE " + channelName + " " + modeLetter + "\r\n";
 		channel->setPasswordStatus(true);
 		channel->setChanPassword(modeValue);
-		std::cout << "key mode ON" << std::endl;
-		channel->broadcast(response, -1);
+		channel->broadcast(responsePwd, -1);
 	}
 
 	else if (modeLetter == "-k")
@@ -156,12 +156,6 @@ void ModeCommand::execute(Server &server, Client *client, std::istringstream &ar
 			+ " MODE " + channelName + " " + modeLetter + " " + targetNick + "\r\n";
 
 		channel->broadcast(response, -1);
-
-		const std::map<int, Client*>& members = channel->getClients();
-		for (std::map<int, Client*>::const_iterator it = members.begin(); it != members.end(); ++it)
-		{
-			send(it->second->getSocketFd(), response.c_str(), response.size(), 0);
-		}
 	}
 
 	else

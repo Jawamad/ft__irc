@@ -345,7 +345,6 @@ Client* Server::findClientByNickname(const std::string& nickname)
 {
 	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		Client* client = it->second;
-		std::cout << client->getNickname();
 		if (client->getNickname() == nickname) {
 			return client;
 		}
@@ -357,7 +356,6 @@ Client* Server::findClientByFd(int clientFd)
 {
 	  for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		Client* client = it->second;
-		std::cout << client->getSocketFd();
 		if (client->getSocketFd() == clientFd) {
 			return client;
 		}
