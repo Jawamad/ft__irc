@@ -37,18 +37,18 @@ class Client
 		bool		hasUser() const;
 		bool		hasNick() const;
 
-		void	setNickname(const std::string &nickname);
-		void	setUsername(const std::string &username);
-		void	setHaspassedPassword(bool value);
-		void	setLoggedIn(bool loggedIn);
-		void	appendToBuffer(const std::string &data);
-		void	clearBuffer();
-		void	setHasUser(bool value);
-		void	setHasNick(bool value);
-		bool	receiveMessage();
-		void	logRoutine(Server& server);
-		void	addInvitedList(std::string chan);
-		void	delInvitedList(std::string chan);
+		void		setNickname(const std::string &nickname);
+		void		setUsername(const std::string &username);
+		void		setHaspassedPassword(bool value);
+		void		setLoggedIn(bool loggedIn);
+		void		appendToBuffer(const std::string &data);
+		void		clearBuffer();
+		void		setHasUser(bool value);
+		void		setHasNick(bool value);
+		bool		receiveMessage();
+		void		logRoutine(Server& server);
+		void		addInvitedList(std::string chan);
+		void		delInvitedList(std::string chan);
 };
 
 #endif

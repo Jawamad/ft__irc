@@ -63,10 +63,10 @@ class Server
 		Client*	findClientByNickname(const std::string& nickname);
 		Client*	findClientByFd(int clientFd);
 
-		void errorMessage(Client* client, const std::string& code, const std::string& command, const std::string& message);
-		void serverMessage(Client* client, std::string errorCode,  const std::string& errorMsg);
-		void sendCommandMessage(Client* sender, const std::string& command, const std::string& params, const std::string& trailing);
-		void sendNumericReply(Client* target, int code, const std::string& params, const std::string& trailing);
+		void	errorMessage(Client* client, const std::string& code, const std::string& command, const std::string& message);
+		void	serverMessage(Client* client, std::string errorCode,  const std::string& errorMsg);
+		void	sendCommandMessage(Client* sender, const std::string& command, const std::string& params, const std::string& trailing);
+		void	sendNumericReply(Client* target, int code, const std::string& params, const std::string& trailing);
 
 };
 
