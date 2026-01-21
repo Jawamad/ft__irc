@@ -42,3 +42,32 @@ bonus:
 	@$(MAKE) --no-print-directory -C bot
 
 re: fclean all
+
+
+
+WAF_HTTP_PORT=8080
+WAF_HTTPS_PORT=8443
+
+# Intern Docker
+API_GATEWAY_PORT=8080
+AUTHSERVICE_PORT=3000
+DBWRITER_PORT=4000
+VAULT_PORT=8200
+
+# URLs
+AUTH_SERVICE_URL=http://authservice:3000
+FRONTEND_URL=https://waf:443
+DBWRITER_URL=http://dbwriter:4000
+# DB
+DATABASE_URL=/app/data/db.sqlite
+
+# Vault
+VAULT_ADDR=http://0.0.0.0:8200
+
+# authservice
+JWT_SECRET=a_long_random_secret_string
+
+# elk
+ELASTIC_PASSWORD=testmdp
+KIBANA_PASSWORD=testmdp
+LOGSTASH_PASSWORD=testmdp
